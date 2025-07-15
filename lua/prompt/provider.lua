@@ -1,0 +1,194 @@
+local util = require('prompt.util')
+
+local M = {}
+
+local OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
+local OPENROUTER_API_V1_CHAT_COMPLETIONS_URL = 'https://openrouter.ai/api/v1/chat/completions'
+local OPENROUTER_API_V1_MODELS_URL = 'https://openrouter.ai/api/v1/models'
+
+-- OpenRouter API
+
+---@class Message Message object for conversation
+---@field role "user"|"assistant"|"system"|"developer"|"tool" The role of the message sender
+---@field content string The content of the message
+
+---@alias OnDeltaContent fun(content: string): nil Callback for streaming content deltas
+---@alias OnDeltaReasoning fun(reasoning: string): nil Callback for streaming reasoning deltas
+---@alias OnSuccess fun(content: string): nil Callback on successful completion
+
+---@class OpenRouterOpts Options for the OpenRouter API request
+---@field model string The model to use for the request
+---@field messages Message[] Array of message objects for the conversation
+---@field stream boolean Whether to use streaming response
+---@field on_delta_content? OnDeltaContent Optional callback for streaming content deltas
+---@field on_delta_reasoning? OnDeltaReasoning Optional callback for streaming reasoning deltas
+---@field on_success? OnSuccess Optional callback on successful completion. For streaming requests, called with no args. For non-streaming, called with response content string.
+
+---@param opts OpenRouterOpts
+function M.make_openrouter_request(opts)
+  if not OPENROUTER_API_KEY then
+    vim.notify("OPENROUTER_API_KEY environment variable not set", vim.log.levels.ERROR)
+    return
+  end
+
+  local request_body = vim.json.encode({
+    model = opts.model,
+    messages = opts.messages,
+    stream = opts.stream,
+  })
+
+  local headers = {
+    "Authorization: Bearer " .. OPENROUTER_API_KEY,
+    "HTTP-Referer: robcmills.net",
+    "X-Title: markdown-prompt.nvim",
+    "Content-Type: application/json",
+  }
+
+  local curl_args = {
+    "-X", "POST",
+    "-H", table.concat(headers, " -H "),
+    "-d", request_body,
+    "--silent", -- Suppress progress output
+    "--no-buffer",
+    OPENROUTER_API_V1_CHAT_COMPLETIONS_URL
+  }
+
+  local buffer = ""
+
+  local function handle_stdout(err, data)
+    if err then print('handle_stdout err: ' .. err) end
+
+    if not data then return end
+
+    buffer = buffer .. data
+
+    if opts.stream then
+      -- Process complete lines from buffer for streaming
+      while true do
+        local line_end = string.find(buffer, "\n")
+        if not line_end then break end
+
+        local line = string.sub(buffer, 1, line_end - 1)
+        buffer = string.sub(buffer, line_end + 1)
+
+        line = vim.trim(line)
+
+        if string.sub(line, 1, 6) == "data: " then
+          local json = string.sub(line, 7)
+          if json == "[DONE]" then
+            return
+          end
+
+          local success, parsed = pcall(vim.json.decode, json)
+
+          if not success then
+            print('handle_stdout: failed to parse json data: ' .. json)
+          elseif parsed.choices and parsed.choices[1] and parsed.choices[1].delta then
+            local delta = parsed.choices[1].delta
+            if opts.on_delta_content and delta.content then
+              opts.on_delta_content(delta.content)
+            end
+            if opts.on_delta_reasoning and delta.reasoning and type(delta.reasoning) == "string" then
+              opts.on_delta_reasoning(delta.reasoning)
+            end
+          end
+        elseif string.sub(line, 1, 1) == ":" then
+          -- Ignore SSE comments
+        end
+      end
+    end
+  end
+
+  local function handle_stderr(err, data)
+    if err then print('handle_stderr err: ' .. err) end
+    if data then print('handle_stderr data: ' .. data) end
+  end
+
+  local function on_exit(obj)
+    vim.schedule(function()
+      if obj.code ~= 0 then
+        vim.notify("OpenRouter API request failed with exit code: " .. obj.code, vim.log.levels.ERROR)
+        return
+      end
+
+      if opts.on_success then
+        if opts.stream then
+          opts.on_success()
+        else
+          -- For non-streaming requests, parse the JSON response and extract content
+          local success, parsed = pcall(vim.json.decode, buffer)
+          if success and parsed.choices and parsed.choices[1] and parsed.choices[1].message and parsed.choices[1].message.content then
+            opts.on_success(parsed.choices[1].message.content)
+          else
+            vim.notify(
+              "Failed to parse OpenRouter API response: " .. buffer,
+              vim.log.levels.ERROR
+            )
+          end
+        end
+      end
+    end)
+  end
+
+  vim.system({ "curl", unpack(curl_args) }, {
+    stdout_buffered = false,
+    stderr_buffered = false,
+    stdout = handle_stdout,
+    stderr = handle_stderr,
+  }, on_exit)
+end
+
+function M.get_models_path()
+  local path = config.models_path
+  if string.sub(path, 1, 1) == "~" then
+    path = vim.fn.expand(path)
+  end
+  return path
+end
+
+function M.get_prompt_summary(filename, prompt, callback)
+  local summary_prompt = string.format([[
+Summarize the following Prompt in a single, very short title.
+Format it for a filename, in kebab-case, no spaces, and no punctuation.
+Respond with only the title and nothing else.
+
+<Prompt>
+%s
+</Prompt>
+]], prompt)
+
+  local messages = {
+    { role = "user", content = summary_prompt }
+  }
+
+  local function on_success(summary)
+    if not summary then
+      vim.notify("Failed to generate prompt summary", vim.log.levels.ERROR)
+      return
+    end
+
+    -- Sanitize the summary for filename use
+    local sanitized_summary = util.sanitize_filename(summary)
+
+    if sanitized_summary == "" then
+      vim.notify("Generated summary is empty, keeping original filename", vim.log.levels.WARN)
+      return
+    end
+
+    -- Create new filename
+    local base_name = string.gsub(filename, "%.md$", "")
+    local new_filename = base_name .. "-" .. sanitized_summary .. ".md"
+
+    if callback then callback(new_filename) end
+
+  end
+
+  M.make_openrouter_request({
+    messages = messages,
+    model = config.model,
+    stream = false,
+    on_success = on_success
+  })
+end
+
+return M
