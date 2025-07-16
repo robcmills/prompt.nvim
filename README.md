@@ -1,6 +1,8 @@
-<img alt="prompt.nvim logo" src="logo.png" />
+<img alt="prompt.nvim logo" src="assets/logo.png" />
 
 Prompt language models directly from markdown files.
+
+<video src="assets/demo.mp4" controls="controls" width="100%"></video>
 
 ## Features
 
