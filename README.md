@@ -1,4 +1,4 @@
-<img src="logo.png" alt="prompt.nvim logo" width="100">
+<img alt="prompt.nvim logo" src="logo.png" />
 
 Prompt language models directly from markdown files.
 
