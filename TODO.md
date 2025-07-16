@@ -1,11 +1,8 @@
 
 ## Todo
 
-- [x] Open source
-  + Migrate to own repo
-  + Add proper directory structure
-- [ ] Add reasoning formatting
-- [ ] Add custom markdown formatting (delineators)
+- [ ] Add better reasoning formatting
+- [ ] Add custom markdown formatting (delineators, files)
 - [ ] Add support for thinking models
   + [x] Gemini 2.5
 - [ ] Add custom labels
@@ -15,6 +12,7 @@
 - [ ] Refactor default config directory
   ~/.config/nvim/prompt/
 - [ ] Add command to update models
+- [ ] Refactor filename summary to use static model (not current)
 - [ ] Add command to manually trigger summary rename
 - [ ] Add more providers support
 - [ ] Add token counts and costs stats
