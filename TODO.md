@@ -18,6 +18,7 @@
   ~/.config/nvim/prompt/
 - [ ] Refactor filename summary to use static model (not current)
 - [ ] Add command to manually trigger summary rename
+- [ ] Rename make_openrouter_request to make_chat_completion_request
 - [ ] Add more providers support
 - [ ] Add sqlite db for storing more data
 - [ ] Add token counts and costs stats

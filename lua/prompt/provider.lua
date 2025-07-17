@@ -1,4 +1,5 @@
 local util = require('prompt.util')
+local config = require('prompt.config')
 
 local M = {}
 
@@ -144,6 +145,77 @@ function M.get_models_path()
     path = vim.fn.expand(path)
   end
   return path
+end
+
+function M.update_models()
+  if not OPENROUTER_API_KEY then
+    vim.notify("OPENROUTER_API_KEY environment variable not set", vim.log.levels.ERROR)
+    return
+  end
+
+  local models_path = M.get_models_path()
+
+  local headers = {
+    "Authorization: Bearer " .. OPENROUTER_API_KEY,
+    "HTTP-Referer: robcmills",
+    "X-Title: prompt.nvim",
+  }
+
+  local curl_args = {
+    "-X", "GET",
+    "-H", table.concat(headers, " -H "),
+    "--silent",
+    OPENROUTER_API_V1_MODELS_URL
+  }
+
+  local buffer = ""
+
+  local function handle_stdout(err, data)
+    if err then print('handle_stdout err: ' .. err) end
+    if data then
+      buffer = buffer .. data
+    end
+  end
+
+  local function handle_stderr(err, data)
+    if err then print('handle_stderr err: ' .. err) end
+    if data then print('handle_stderr data: ' .. data) end
+  end
+
+  local function on_exit(obj)
+    vim.schedule(function()
+      if obj.code ~= 0 then
+        vim.notify("Failed to fetch models from OpenRouter API (exit code: " .. obj.code .. ")", vim.log.levels.ERROR)
+        return
+      end
+
+      -- Validate JSON response
+      local success, parsed = pcall(vim.json.decode, buffer)
+      if not success then
+        vim.notify("Failed to parse models response from OpenRouter API", vim.log.levels.ERROR)
+        return
+      end
+
+      -- Write to models file
+      local file = io.open(models_path, "w")
+      if not file then
+        vim.notify("Failed to open models file for writing: " .. models_path, vim.log.levels.ERROR)
+        return
+      end
+
+      file:write(buffer)
+      file:close()
+
+      vim.notify("Models list updated successfully: " .. models_path, vim.log.levels.INFO)
+    end)
+  end
+
+  vim.system({ "curl", unpack(curl_args) }, {
+    stdout_buffered = false,
+    stderr_buffered = false,
+    stdout = handle_stdout,
+    stderr = handle_stderr,
+  }, on_exit)
 end
 
 function M.get_prompt_summary(filename, prompt, callback)

@@ -17,6 +17,10 @@ function M.create_commands()
     core.select_model()
   end, { desc = "Select model" })
 
+  command("PromptModelsUpdate", function()
+    core.update_models()
+  end, { desc = "Update available models list" })
+
   command("PromptNew", function()
     core.new_prompt()
   end, { desc = "Create a new markdown prompt file" })

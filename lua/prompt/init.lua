@@ -11,6 +11,7 @@ M.new_prompt = core.new_prompt
 M.select_model = core.select_model
 M.split_prompt = core.split_prompt
 M.submit_prompt = core.submit_prompt
+M.update_models = core.update_models
 
 function M.setup(opts)
   if opts then

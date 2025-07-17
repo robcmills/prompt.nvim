@@ -117,6 +117,10 @@ function M.get_model()
   print(config.model)
 end
 
+function M.update_models()
+  provider.update_models()
+end
+
 function M.select_model()
   local models_path = provider.get_models_path()
 

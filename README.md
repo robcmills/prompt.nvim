@@ -90,6 +90,7 @@ Tell me more about its history.
 | `:PromptHistory` | Browse and open previous prompt conversations |
 | `:PromptModelGet` | Display the currently selected model |
 | `:PromptModelSelect` | Choose from available AI models |
+| `:PromptModelsUpdate` | Update the list of available models from OpenRouter |
 
 
 ## Configuration
