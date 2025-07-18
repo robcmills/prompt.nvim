@@ -157,7 +157,7 @@ function M.update_models()
 
   local headers = {
     "Authorization: Bearer " .. OPENROUTER_API_KEY,
-    "HTTP-Referer: robcmills",
+    "HTTP-Referer: prompt.nvim",
     "X-Title: prompt.nvim",
   }
 
@@ -190,7 +190,7 @@ function M.update_models()
       end
 
       -- Validate JSON response
-      local success, parsed = pcall(vim.json.decode, buffer)
+      local success = pcall(vim.json.decode, buffer)
       if not success then
         vim.notify("Failed to parse models response from OpenRouter API", vim.log.levels.ERROR)
         return

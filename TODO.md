@@ -9,6 +9,7 @@
 - [ ] Add custom markdown formatting (delineators, files)
 - [ ] Add support for thinking models
   + [x] Gemini 2.5
+- [ ] Gracefully handle failed requests to out-of-date models
 - [ ] Refactor delineators to use static hidden <!-- html comments -->
 - [ ] Add custom labels
   assistant_label = "[● %s:]",
