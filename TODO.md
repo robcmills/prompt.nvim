@@ -1,7 +1,7 @@
 
 ## Todo
 
-- [ ] Update :PromptModelSelect to update models if no data
+- [ ] Update :PromptModelSelect to update models if cache expired
 - [ ] Add better reasoning formatting
 - [ ] Add support for adding `@files`
 - [ ] Add ability to include `@diagnostics`
