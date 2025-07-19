@@ -122,24 +122,27 @@ function M.update_models()
 end
 
 function M.select_model()
-  local models = provider.get_models_list()
+  local function callback(models)
+    vim.schedule(function()
+      if models == nil or #models == 0 then
+        vim.notify("No valid models found in models file", vim.log.levels.WARN)
+        return
+      end
 
-  -- if models is nil or empty, notify user
-  if models == nil or #models == 0 then
-    vim.notify("No valid models found in models file", vim.log.levels.WARN)
-    return
+      vim.ui.select(models, {
+        prompt = "Select a model:",
+        format_item = function(item)
+          return item.display
+        end,
+      }, function(choice)
+        if not choice then return end
+        config.model = choice.id
+        vim.notify("Selected model: " .. choice.name, vim.log.levels.INFO)
+      end)
+    end)
   end
 
-  vim.ui.select(models, {
-    prompt = "Select a model:",
-    format_item = function(item)
-      return item.display
-    end,
-  }, function(choice)
-    if not choice then return end
-    config.model = choice.id
-    vim.notify("Selected model: " .. choice.name, vim.log.levels.INFO)
-  end)
+  provider.get_models_list(callback)
 end
 
 function M.new_prompt()

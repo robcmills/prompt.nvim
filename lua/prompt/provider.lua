@@ -139,37 +139,41 @@ function M.make_openrouter_request(opts)
   }, on_exit)
 end
 
-function M.get_models_list()
+function M.get_models_list(callback)
   local models_path = M.get_models_path()
 
-  -- Check if models file exists
   local file = io.open(models_path, "r")
   if not file then
-    vim.notify("Models file not found. Run :PromptModelsUpdate", vim.log.levels.ERROR)
+    vim.notify("Models file not found, fetching from API...", vim.log.levels.INFO)
+    M.update_models(function(success)
+      vim.schedule(function()
+        if not success then return end
+        M.get_models_list(callback)
+      end)
+    end)
     return
   end
 
   local content = file:read("*all")
   file:close()
 
-  -- Parse JSON
   local success, models_data = pcall(vim.json.decode, content)
   if not success then
     vim.notify("Failed to parse models JSON file", vim.log.levels.ERROR)
+    callback(nil)
     return
   end
 
   if not models_data.data or type(models_data.data) ~= "table" then
     vim.notify("Invalid models file format: missing 'data' array", vim.log.levels.ERROR)
+    callback(nil)
     return
   end
 
-  -- Sort models by created timestamp descending (most recent first)
   table.sort(models_data.data, function(a, b)
     return (a.created or 0) > (b.created or 0)
   end)
 
-  -- Create choices for UI select
   local models = {}
   for _, model in ipairs(models_data.data) do
     if model.id and model.name then
@@ -181,7 +185,7 @@ function M.get_models_list()
     end
   end
 
-  return models
+  callback(models)
 end
 
 function M.get_models_path()
@@ -237,9 +241,10 @@ Respond with only the title and nothing else.
   })
 end
 
-function M.update_models()
+function M.update_models(callback)
   if not OPENROUTER_API_KEY then
     vim.notify("OPENROUTER_API_KEY environment variable not set", vim.log.levels.ERROR)
+    if callback then callback(false) end
     return
   end
 
@@ -276,6 +281,7 @@ function M.update_models()
     vim.schedule(function()
       if obj.code ~= 0 then
         vim.notify("Failed to fetch models from OpenRouter API (exit code: " .. obj.code .. ")", vim.log.levels.ERROR)
+        if callback then callback(false) end
         return
       end
 
@@ -283,6 +289,7 @@ function M.update_models()
       local success = pcall(vim.json.decode, buffer)
       if not success then
         vim.notify("Failed to parse models response from OpenRouter API", vim.log.levels.ERROR)
+        if callback then callback(false) end
         return
       end
 
@@ -290,13 +297,15 @@ function M.update_models()
       local file = io.open(models_path, "w")
       if not file then
         vim.notify("Failed to open models file for writing: " .. models_path, vim.log.levels.ERROR)
+        if callback then callback(false) end
         return
       end
 
       file:write(buffer)
       file:close()
 
-      vim.notify("Models list updated successfully: " .. models_path, vim.log.levels.INFO)
+      vim.notify("Models file updated successfully: " .. models_path, vim.log.levels.INFO)
+      if callback then callback(true) end
     end)
   end
 
