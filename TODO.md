@@ -1,22 +1,33 @@
 
-## Todo
+# Todo
 
-- [ ] Update :PromptModelSelect to update models if cache expired
-- [ ] Add better reasoning formatting
-- [ ] Add support for adding `@files`
-- [ ] Add ability to include `@diagnostics`
-- [ ] Add custom markdown formatting (delineators, files)
-- [ ] Add support for thinking models
-  + [x] Gemini 2.5
-- [ ] Gracefully handle failed requests to out-of-date models
-- [ ] Refactor delineators to use static hidden <!-- html comments -->
-- [ ] Add custom labels
+## Bugs/Critical Features
+
+- [ ] Refactor delineators to use static hard coded hidden html comments
+- [ ] Add customizable labels
   assistant_label = "[● %s:]",
   reasoning_label = "[∴ reasoning:]",
   user_label = "[○ user:]",
+- [ ] Refactor filename summary to use static model (not current)
+- [ ] Add support for thinking models
+  + [x] Gemini 2.5, Grok 4, Kimi K2
+  + [ ] Test all reasoning models
+- [ ] Gracefully handle failed requests to out-of-date models
+- [ ] Enable cancellation of streaming request
+- [ ] Tests (all models)
+- [ ] docs (help file)
+
+
+## Improvements
+
 - [ ] Refactor default config directory
   ~/.config/nvim/prompt/
-- [ ] Refactor filename summary to use static model (not current)
+- [ ] Add custom markdown formatting (delineators, files, reasoning)
+  + [ ] Add better reasoning formatting
+- [ ] Update :PromptModelSelect to update models if cache expired
+  + ~/.local/share/nvim/prompt_history/2025-07-19T09:19:23-agent-prompt-models-expiry.md
+- [ ] Add support for adding `@mentions`
+  + https://github.com/yetone/avante.nvim/tree/main#mentions
 - [ ] Add command to manually trigger summary rename
 - [ ] Rename make_openrouter_request to make_chat_completion_request
 - [ ] Add more providers support
@@ -26,9 +37,6 @@
   instead of a single shared buffer)
 - [ ] Model picker configurable format (select), filter, sort
 - [ ] Add leaderboard sorting to model picker
-- [ ] Enable cancellation of streaming request
 - [ ] UI
-- [ ] Tests (all models)
-- [ ] docs (help file)
 - [ ] Add "inline" prompts (meta+k) for code edits
 - [ ] Add agent mode?
