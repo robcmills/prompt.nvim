@@ -1,7 +1,6 @@
 
 ## Todo
 
-- [ ] Add command to update models
 - [ ] Update :PromptModelSelect to update models if no data
 - [ ] Add better reasoning formatting
 - [ ] Add support for adding `@files`

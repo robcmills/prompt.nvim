@@ -139,12 +139,102 @@ function M.make_openrouter_request(opts)
   }, on_exit)
 end
 
+function M.get_models_list()
+  local models_path = M.get_models_path()
+
+  -- Check if models file exists
+  local file = io.open(models_path, "r")
+  if not file then
+    vim.notify("Models file not found. Run :PromptModelsUpdate", vim.log.levels.ERROR)
+    return
+  end
+
+  local content = file:read("*all")
+  file:close()
+
+  -- Parse JSON
+  local success, models_data = pcall(vim.json.decode, content)
+  if not success then
+    vim.notify("Failed to parse models JSON file", vim.log.levels.ERROR)
+    return
+  end
+
+  if not models_data.data or type(models_data.data) ~= "table" then
+    vim.notify("Invalid models file format: missing 'data' array", vim.log.levels.ERROR)
+    return
+  end
+
+  -- Sort models by created timestamp descending (most recent first)
+  table.sort(models_data.data, function(a, b)
+    return (a.created or 0) > (b.created or 0)
+  end)
+
+  -- Create choices for UI select
+  local models = {}
+  for _, model in ipairs(models_data.data) do
+    if model.id and model.name then
+      table.insert(models, {
+        id = model.id,
+        name = model.name,
+        display = model.name
+      })
+    end
+  end
+
+  return models
+end
+
 function M.get_models_path()
   local path = config.models_path
   if string.sub(path, 1, 1) == "~" then
     path = vim.fn.expand(path)
   end
   return path
+end
+
+function M.get_prompt_summary(filename, prompt, callback)
+  local summary_prompt = string.format([[
+Summarize the following Prompt in a single, very short title.
+Format it for a filename, in kebab-case, no spaces, and no punctuation.
+Respond with only the title and nothing else.
+
+<Prompt>
+%s
+</Prompt>
+]], prompt)
+
+  local messages = {
+    { role = "user", content = summary_prompt }
+  }
+
+  local function on_success(summary)
+    if not summary then
+      vim.notify("Failed to generate prompt summary", vim.log.levels.ERROR)
+      return
+    end
+
+    -- Sanitize the summary for filename use
+    local sanitized_summary = util.sanitize_filename(summary)
+
+    if sanitized_summary == "" then
+      vim.notify("Generated summary is empty, keeping original filename", vim.log.levels.WARN)
+      return
+    end
+
+    -- Create new filename
+    local base_name = string.gsub(filename, "%.md$", "")
+    local new_filename = base_name .. "-" .. sanitized_summary .. ".md"
+
+    if callback then callback(new_filename) end
+
+  end
+
+  M.make_openrouter_request({
+    messages = messages,
+    model = config.model,
+    stream = false,
+    on_success = on_success
+  })
 end
 
 function M.update_models()
@@ -216,51 +306,6 @@ function M.update_models()
     stdout = handle_stdout,
     stderr = handle_stderr,
   }, on_exit)
-end
-
-function M.get_prompt_summary(filename, prompt, callback)
-  local summary_prompt = string.format([[
-Summarize the following Prompt in a single, very short title.
-Format it for a filename, in kebab-case, no spaces, and no punctuation.
-Respond with only the title and nothing else.
-
-<Prompt>
-%s
-</Prompt>
-]], prompt)
-
-  local messages = {
-    { role = "user", content = summary_prompt }
-  }
-
-  local function on_success(summary)
-    if not summary then
-      vim.notify("Failed to generate prompt summary", vim.log.levels.ERROR)
-      return
-    end
-
-    -- Sanitize the summary for filename use
-    local sanitized_summary = util.sanitize_filename(summary)
-
-    if sanitized_summary == "" then
-      vim.notify("Generated summary is empty, keeping original filename", vim.log.levels.WARN)
-      return
-    end
-
-    -- Create new filename
-    local base_name = string.gsub(filename, "%.md$", "")
-    local new_filename = base_name .. "-" .. sanitized_summary .. ".md"
-
-    if callback then callback(new_filename) end
-
-  end
-
-  M.make_openrouter_request({
-    messages = messages,
-    model = config.model,
-    stream = false,
-    on_success = on_success
-  })
 end
 
 return M

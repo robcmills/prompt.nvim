@@ -122,62 +122,21 @@ function M.update_models()
 end
 
 function M.select_model()
-  local models_path = provider.get_models_path()
+  local models = provider.get_models_list()
 
-  -- Check if models file exists
-  local file = io.open(models_path, "r")
-  if not file then
-    vim.notify("Models file not found: " .. models_path, vim.log.levels.ERROR)
-    return
-  end
-
-  local content = file:read("*all")
-  file:close()
-
-  -- Parse JSON
-  local success, models_data = pcall(vim.json.decode, content)
-  if not success then
-    vim.notify("Failed to parse models JSON file", vim.log.levels.ERROR)
-    return
-  end
-
-  if not models_data.data or type(models_data.data) ~= "table" then
-    vim.notify("Invalid models file format: missing 'data' array", vim.log.levels.ERROR)
-    return
-  end
-
-  -- Sort models by created timestamp descending (most recent first)
-  table.sort(models_data.data, function(a, b)
-    return (a.created or 0) > (b.created or 0)
-  end)
-
-  -- Create choices for UI select
-  local model_choices = {}
-  for _, model in ipairs(models_data.data) do
-    if model.id and model.name then
-      table.insert(model_choices, {
-        id = model.id,
-        name = model.name,
-        display = model.name
-      })
-    end
-  end
-
-  if #model_choices == 0 then
+  -- if models is nil or empty, notify user
+  if models == nil or #models == 0 then
     vim.notify("No valid models found in models file", vim.log.levels.WARN)
     return
   end
 
-  vim.ui.select(model_choices, {
+  vim.ui.select(models, {
     prompt = "Select a model:",
     format_item = function(item)
       return item.display
     end,
   }, function(choice)
-    if not choice then
-      return
-    end
-
+    if not choice then return end
     config.model = choice.id
     vim.notify("Selected model: " .. choice.name, vim.log.levels.INFO)
   end)
