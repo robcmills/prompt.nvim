@@ -52,14 +52,14 @@ function M.submit_prompt()
     end
   end
 
-  util.add_chat_delineator(current_bufnr, config.model)
+  parse.add_chat_delineator(current_bufnr, config.model)
 
   provider.make_openrouter_request({
     messages = messages,
     model = config.model,
     stream = true,
     on_success = function()
-      util.add_chat_delineator(current_bufnr, 'user')
+      parse.add_chat_delineator(current_bufnr, 'user')
       vim.cmd("write")
     end,
     on_delta_content = function(content)

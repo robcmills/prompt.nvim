@@ -2,6 +2,17 @@ local config = require('prompt.config')
 
 local M = {}
 
+function M.add_chat_delineator(bufnr, role)
+  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+    print('add_chat_delineator: buffer not valid')
+    return
+  end
+
+  local delineator = string.format(config.chat_delineator, role)
+  local new_content = "\n" .. delineator .. "\n\n"
+  vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, vim.split(new_content, "\n"))
+end
+
 function M.parse_messages_from_chat_buffer(buffer_content)
   local messages = {}
   local delineator_pattern = "^" .. string.gsub(config.chat_delineator, "%%s", "(.+)") .. "$"
