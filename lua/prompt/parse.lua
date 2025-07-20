@@ -1,5 +1,8 @@
 local config = require('prompt.config')
 
+local DELINEATOR_ROLE_PATTERN = "^%[[^%s]+ ([%w%-/:%.]+):]$"
+local MESSAGE_DELINEATOR = "[%s %s:]" -- [icon role:]
+
 local M = {}
 
 function M.add_chat_delineator(bufnr, role)
@@ -8,16 +11,22 @@ function M.add_chat_delineator(bufnr, role)
     return
   end
 
-  local delineator = string.format(config.chat_delineator, role)
+  local icon
+  if role == "user" then
+    icon = config.icons.user
+  elseif role == "reasoning" then
+    icon = config.icons.reasoning
+  else
+    icon = config.icons.assistant
+  end
+  local delineator = string.format(MESSAGE_DELINEATOR, icon, role)
   local new_content = "\n" .. delineator .. "\n\n"
   vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, vim.split(new_content, "\n"))
 end
 
 function M.parse_messages_from_chat_buffer(buffer_content)
   local messages = {}
-  local delineator_pattern = "^" .. string.gsub(config.chat_delineator, "%%s", "(.+)") .. "$"
 
-  -- Split content by lines for processing
   local lines = vim.split(buffer_content, "\n")
   local current_message = {
     role = "user", -- default role for first message
@@ -26,8 +35,7 @@ function M.parse_messages_from_chat_buffer(buffer_content)
   local content_lines = {}
 
   for _, line in ipairs(lines) do
-    -- Check if this line matches the delineator pattern
-    local role_match = string.match(line, delineator_pattern)
+    local role_match = string.match(line, DELINEATOR_ROLE_PATTERN)
     if role_match then
       -- Save current message if it has content
       if #content_lines > 0 then

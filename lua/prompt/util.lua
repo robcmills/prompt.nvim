@@ -27,17 +27,6 @@ function M.get_buffer_content(bufnr)
   return table.concat(lines, "\n")
 end
 
-function M.add_chat_delineator(bufnr, role)
-  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
-    print('add_chat_delineator: buffer not valid')
-    return
-  end
-
-  local delineator = string.format(config.chat_delineator, role)
-  local new_content = "\n" .. delineator .. "\n\n"
-  vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, vim.split(new_content, "\n"))
-end
-
 function M.append_to_buffer(bufnr, text)
   vim.schedule(function()
     if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
