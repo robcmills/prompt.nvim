@@ -3,11 +3,7 @@
 
 ## Bugs/Critical Features
 
-- [ ] Refactor delineators to use static hard coded hidden html comments
-- [ ] Add customizable labels
-  assistant_label = "[● %s:]",
-  reasoning_label = "[∴ reasoning:]",
-  user_label = "[○ user:]",
+- [ ] Add reasoning delineators
 - [ ] Refactor filename summary to use static model (not current)
 - [ ] Add support for thinking models
   + [x] Gemini 2.5, Grok 4, Kimi K2
@@ -23,7 +19,7 @@
 - [ ] Refactor default config directory
   ~/.config/nvim/prompt/
 - [ ] Add custom markdown formatting (delineators, files, reasoning)
-  + [ ] Add better reasoning formatting
+  + [ ] Add better reasoning formatting (highlight delineator line, indent reasoning content so it can be folded)
 - [ ] Update :PromptModelSelect to update models if cache expired
   + ~/.local/share/nvim/prompt_history/2025-07-19T09:19:23-agent-prompt-models-expiry.md
 - [ ] Add support for adding `@mentions`

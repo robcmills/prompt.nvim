@@ -35,8 +35,8 @@ function M.parse_messages_from_chat_buffer(buffer_content)
   local content_lines = {}
 
   for _, line in ipairs(lines) do
-    local role_match = string.match(line, DELINEATOR_ROLE_PATTERN)
-    if role_match then
+    local role = string.match(line, DELINEATOR_ROLE_PATTERN)
+    if role and role ~= "reasoning" then
       -- Save current message if it has content
       if #content_lines > 0 then
         current_message.content = vim.trim(table.concat(content_lines, "\n"))
@@ -46,8 +46,6 @@ function M.parse_messages_from_chat_buffer(buffer_content)
       end
 
       -- Start new message
-      local role = vim.trim(role_match)
-      -- Validate role
       if not vim.tbl_contains({"user", "assistant", "system", "developer", "tool"}, role) then
         role = "assistant"
       end
