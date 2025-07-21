@@ -1,4 +1,5 @@
 local config = require('prompt.config')
+local util = require('prompt.util')
 
 local DELINEATOR_ROLE_PATTERN = "^%[[^%s]+ ([%w%-/:%.]+):]$"
 local MESSAGE_DELINEATOR = "[%s %s:]" -- [icon role:]
@@ -20,8 +21,33 @@ function M.add_chat_delineator(bufnr, role)
     icon = config.icons.assistant
   end
   local delineator = string.format(MESSAGE_DELINEATOR, icon, role)
-  local new_content = "\n" .. delineator .. "\n\n"
+  local is_last_line_empty = util.get_buffer_last_line(bufnr) == ""
+  local prefix = is_last_line_empty and "" or "\n"
+  local new_content = prefix .. delineator .. "\n"
   vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, vim.split(new_content, "\n"))
+end
+
+function M.is_inside_reasoning_block(bufnr)
+  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+    vim.notify("is_inside_reasoning_block: buffer not valid", vim.log.levels.ERROR)
+    return false
+  end
+
+  local line_count = vim.api.nvim_buf_line_count(bufnr)
+  if line_count == 0 then
+    return false
+  end
+
+  -- Start from the last line and work backwards
+  for i = line_count, 1, -1 do
+    local line = vim.api.nvim_buf_get_lines(bufnr, i - 1, i, false)[1]
+    if not line then return false end
+    local role = string.match(line, DELINEATOR_ROLE_PATTERN)
+    if role == "reasoning" then return true end
+    if role ~= nil and role ~= "" then return false end
+  end
+
+  return false
 end
 
 function M.parse_messages_from_chat_buffer(buffer_content)

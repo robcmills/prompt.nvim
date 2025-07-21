@@ -86,7 +86,7 @@ function M.make_openrouter_request(opts)
             print('handle_stdout: failed to parse json data: ' .. json)
           elseif parsed.choices and parsed.choices[1] and parsed.choices[1].delta then
             local delta = parsed.choices[1].delta
-            if opts.on_delta_content and delta.content then
+            if opts.on_delta_content and delta.content and delta.content ~= "" then
               opts.on_delta_content(delta.content)
             end
             if opts.on_delta_reasoning and delta.reasoning and type(delta.reasoning) == "string" then

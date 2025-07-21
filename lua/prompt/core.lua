@@ -59,14 +59,26 @@ function M.submit_prompt()
     model = config.model,
     stream = true,
     on_success = function()
-      parse.add_chat_delineator(current_bufnr, 'user')
-      vim.cmd("write")
+      vim.schedule(function()
+        parse.add_chat_delineator(current_bufnr, 'user')
+        vim.cmd("write")
+      end)
     end,
     on_delta_content = function(content)
-      util.append_to_buffer(current_bufnr, content)
+      vim.schedule(function()
+        if parse.is_inside_reasoning_block(current_bufnr) then
+          parse.add_chat_delineator(current_bufnr, config.model)
+        end
+        util.append_to_buffer(current_bufnr, content)
+      end)
     end,
     on_delta_reasoning = function(reasoning)
-      util.append_to_buffer(current_bufnr, reasoning)
+      vim.schedule(function()
+        if not parse.is_inside_reasoning_block(current_bufnr) then
+          parse.add_chat_delineator(current_bufnr, "reasoning")
+        end
+        util.append_to_buffer(current_bufnr, reasoning)
+      end)
     end,
   })
 end

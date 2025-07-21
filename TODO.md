@@ -3,7 +3,7 @@
 
 ## Bugs/Critical Features
 
-- [ ] Add reasoning delineators
+- [x] Add reasoning delineators
 - [ ] Refactor filename summary to use static model (not current)
 - [ ] Add support for thinking models
   + [x] Gemini 2.5, Grok 4, Kimi K2
@@ -18,8 +18,10 @@
 
 - [ ] Refactor default config directory
   ~/.config/nvim/prompt/
-- [ ] Add custom markdown formatting (delineators, files, reasoning)
-  + [ ] Add better reasoning formatting (highlight delineator line, indent reasoning content so it can be folded)
+- [ ] Pretty
+  + [ ] Add indentation to all message blocks to enable folding
+  + [ ] Add custom markdown formatting (delineators, files, reasoning)
+  + [ ] Add better reasoning formatting (highlight delineator line)
 - [ ] Update :PromptModelSelect to update models if cache expired
   + ~/.local/share/nvim/prompt_history/2025-07-19T09:19:23-agent-prompt-models-expiry.md
 - [ ] Add support for adding `@mentions`

@@ -27,6 +27,17 @@ function M.get_buffer_content(bufnr)
   return table.concat(lines, "\n")
 end
 
+function M.get_buffer_last_line(bufnr)
+  bufnr = bufnr or 0
+  if not vim.api.nvim_buf_is_valid(bufnr) then
+      error("Invalid buffer number: " .. bufnr)
+  end
+  local line_count = vim.api.nvim_buf_line_count(bufnr)
+  if line_count == 0 then return "" end
+  local last_line = vim.api.nvim_buf_get_lines(bufnr, line_count - 1, line_count, false)[1]
+  return last_line or ""
+end
+
 function M.append_to_buffer(bufnr, text)
   vim.schedule(function()
     if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
