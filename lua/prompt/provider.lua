@@ -196,8 +196,7 @@ function M.get_models_path()
   return path
 end
 
-function M.get_prompt_summary(filename, prompt, callback)
-  local summary_prompt = string.format([[
+local SUMMARY_PROMPT = [[
 Summarize the following Prompt in a single, very short title.
 Format it for a filename, in kebab-case, no spaces, and no punctuation.
 Respond with only the title and nothing else.
@@ -205,10 +204,11 @@ Respond with only the title and nothing else.
 <Prompt>
 %s
 </Prompt>
-]], prompt)
+]]
 
+function M.get_prompt_summary(filename, prompt, callback)
   local messages = {
-    { role = "user", content = summary_prompt }
+    { role = "user", content = string.format(SUMMARY_PROMPT, prompt) }
   }
 
   local function on_success(summary)
@@ -217,7 +217,6 @@ Respond with only the title and nothing else.
       return
     end
 
-    -- Sanitize the summary for filename use
     local sanitized_summary = util.sanitize_filename(summary)
 
     if sanitized_summary == "" then
@@ -225,17 +224,15 @@ Respond with only the title and nothing else.
       return
     end
 
-    -- Create new filename
     local base_name = string.gsub(filename, "%.md$", "")
     local new_filename = base_name .. "-" .. sanitized_summary .. ".md"
 
     if callback then callback(new_filename) end
-
   end
 
   M.make_openrouter_request({
     messages = messages,
-    model = config.model,
+    model = 'google/gemini-2.5-flash',
     stream = false,
     on_success = on_success
   })
