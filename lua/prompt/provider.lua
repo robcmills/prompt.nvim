@@ -13,6 +13,7 @@ local OPENROUTER_API_V1_MODELS_URL = 'https://openrouter.ai/api/v1/models'
 ---@field role "user"|"assistant"|"system"|"developer"|"tool" The role of the message sender
 ---@field content string The content of the message
 
+---@alias OnExit fun(obj: table): nil Callback on exit. obj is vim.SystemCompleted (:h vim.system())
 ---@alias OnDeltaContent fun(content: string): nil Callback for streaming content deltas
 ---@alias OnDeltaReasoning fun(reasoning: string): nil Callback for streaming reasoning deltas
 ---@alias OnSuccess fun(content: string?): nil Callback on successful completion
@@ -23,6 +24,7 @@ local OPENROUTER_API_V1_MODELS_URL = 'https://openrouter.ai/api/v1/models'
 ---@field stream boolean Whether to use streaming response
 ---@field on_delta_content? OnDeltaContent Optional callback for streaming content deltas
 ---@field on_delta_reasoning? OnDeltaReasoning Optional callback for streaming reasoning deltas
+---@field on_exit? OnExit Optional callback on exit
 ---@field on_success? OnSuccess Optional callback on successful completion. For streaming requests, called with no args. For non-streaming, called with response content string.
 
 ---@param opts OpenRouterOpts
@@ -101,12 +103,14 @@ function M.make_openrouter_request(opts)
   end
 
   local function handle_stderr(err, data)
-    if err then print('handle_stderr err: ' .. err) end
-    if data then print('handle_stderr data: ' .. data) end
+    if err then vim.notify('Handle_stderr err: ' .. err, vim.log.levels.ERROR) end
+    if data then vim.notify('Handle_stderr data: ' .. data, vim.log.levels.ERROR) end
   end
 
   local function on_exit(obj)
     vim.schedule(function()
+      if opts.on_exit then opts.on_exit(obj) end
+
       if obj.code ~= 0 then
         vim.notify("OpenRouter API request failed with exit code: " .. obj.code, vim.log.levels.ERROR)
         return

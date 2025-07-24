@@ -61,13 +61,6 @@ function M.submit_prompt()
     messages = messages,
     model = config.model,
     stream = true,
-    on_success = function()
-      vim.schedule(function()
-        active_requests[current_bufnr] = nil
-        parse.add_chat_delineator(current_bufnr, 'user')
-        vim.cmd("write")
-      end)
-    end,
     on_delta_content = function(content)
       vim.schedule(function()
         if parse.is_inside_reasoning_block(current_bufnr) then
@@ -82,6 +75,16 @@ function M.submit_prompt()
           parse.add_chat_delineator(current_bufnr, "reasoning")
         end
         util.append_to_buffer(current_bufnr, reasoning)
+      end)
+    end,
+    on_exit = function(obj)
+      vim.schedule(function()
+        if obj.code ~= 0 then
+          util.append_to_buffer(current_bufnr, "\nPrompt request failed.")
+        end
+        active_requests[current_bufnr] = nil
+        parse.add_chat_delineator(current_bufnr, 'user')
+        vim.cmd("write")
       end)
     end,
   })
