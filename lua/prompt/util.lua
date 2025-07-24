@@ -39,44 +39,42 @@ function M.get_buffer_last_line(bufnr)
 end
 
 function M.append_to_buffer(bufnr, text)
-  vim.schedule(function()
-    if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
-      print('append_to_buffer: buffer not valid')
-      return
+  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+    print('append_to_buffer: buffer not valid')
+    return
+  end
+
+  if not vim.bo[bufnr].modifiable then
+    print('append_to_buffer: buffer not modifiable')
+    return
+  end
+
+  local line_count = vim.api.nvim_buf_line_count(bufnr)
+  local text_parts = vim.split(text, "\n")
+
+  if line_count == 0 then
+    -- Empty buffer, just set the text parts
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, text_parts)
+    return
+  end
+
+  -- Get only the last line
+  local last_line_idx = line_count - 1
+  local last_line = vim.api.nvim_buf_get_lines(bufnr, last_line_idx, last_line_idx + 1, false)[1] or ""
+
+  -- Handle the first part (append to current line)
+  if #text_parts > 0 then
+    vim.api.nvim_buf_set_lines(bufnr, last_line_idx, last_line_idx + 1, false, { last_line .. text_parts[1] })
+  end
+
+  -- Handle remaining parts (each becomes a new line)
+  if #text_parts > 1 then
+    local new_lines = {}
+    for i = 2, #text_parts do
+      table.insert(new_lines, text_parts[i])
     end
-
-    if not vim.bo[bufnr].modifiable then
-      print('append_to_buffer: buffer not modifiable')
-      return
-    end
-
-    local line_count = vim.api.nvim_buf_line_count(bufnr)
-    local text_parts = vim.split(text, "\n")
-
-    if line_count == 0 then
-      -- Empty buffer, just set the text parts
-      vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, text_parts)
-      return
-    end
-
-    -- Get only the last line
-    local last_line_idx = line_count - 1
-    local last_line = vim.api.nvim_buf_get_lines(bufnr, last_line_idx, last_line_idx + 1, false)[1] or ""
-
-    -- Handle the first part (append to current line)
-    if #text_parts > 0 then
-      vim.api.nvim_buf_set_lines(bufnr, last_line_idx, last_line_idx + 1, false, { last_line .. text_parts[1] })
-    end
-
-    -- Handle remaining parts (each becomes a new line)
-    if #text_parts > 1 then
-      local new_lines = {}
-      for i = 2, #text_parts do
-        table.insert(new_lines, text_parts[i])
-      end
-      vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, new_lines)
-    end
-  end)
+    vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, new_lines)
+  end
 end
 
 function M.sanitize_filename(text)

@@ -15,7 +15,7 @@ local OPENROUTER_API_V1_MODELS_URL = 'https://openrouter.ai/api/v1/models'
 
 ---@alias OnDeltaContent fun(content: string): nil Callback for streaming content deltas
 ---@alias OnDeltaReasoning fun(reasoning: string): nil Callback for streaming reasoning deltas
----@alias OnSuccess fun(content: string): nil Callback on successful completion
+---@alias OnSuccess fun(content: string?): nil Callback on successful completion
 
 ---@class OpenRouterOpts Options for the OpenRouter API request
 ---@field model string The model to use for the request
@@ -131,7 +131,7 @@ function M.make_openrouter_request(opts)
     end)
   end
 
-  vim.system({ "curl", unpack(curl_args) }, {
+  return vim.system({ "curl", unpack(curl_args) }, {
     stdout_buffered = false,
     stderr_buffered = false,
     stdout = handle_stdout,

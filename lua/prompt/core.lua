@@ -5,6 +5,9 @@ local util = require('prompt.util')
 
 local M = {}
 
+-- Table to track active requests by buffer number
+local active_requests = {}
+
 function M.submit_prompt()
   local current_bufnr = vim.api.nvim_get_current_buf()
   local original_filepath = vim.api.nvim_buf_get_name(current_bufnr)
@@ -54,12 +57,13 @@ function M.submit_prompt()
 
   parse.add_chat_delineator(current_bufnr, config.model)
 
-  provider.make_openrouter_request({
+  local request = provider.make_openrouter_request({
     messages = messages,
     model = config.model,
     stream = true,
     on_success = function()
       vim.schedule(function()
+        active_requests[current_bufnr] = nil
         parse.add_chat_delineator(current_bufnr, 'user')
         vim.cmd("write")
       end)
@@ -81,6 +85,11 @@ function M.submit_prompt()
       end)
     end,
   })
+
+  -- Store request object for potential cancellation
+  if request then
+    active_requests[current_bufnr] = request
+  end
 end
 
 function M.load_prompt_history()
@@ -182,6 +191,20 @@ function M.split_prompt()
   vim.cmd("vsplit")
   vim.cmd("wincmd L")
   M.new_prompt()
+end
+
+function M.stop_prompt()
+  local current_bufnr = vim.api.nvim_get_current_buf()
+  local request = active_requests[current_bufnr]
+
+  if not request then
+    vim.notify("No active request found for current buffer", vim.log.levels.WARN)
+  else
+    request:kill()
+    active_requests[current_bufnr] = nil
+    util.append_to_buffer(current_bufnr, "\nPrompt request cancelled")
+    vim.notify("Prompt request cancelled", vim.log.levels.INFO)
+  end
 end
 
 return M

@@ -29,6 +29,10 @@ function M.create_commands()
     core.split_prompt()
   end, { desc = "Split the current window vertically and open a new prompt" })
 
+  command("PromptStop", function()
+    core.stop_prompt()
+  end, { desc = "Cancel any request currently streaming into the current buffer" })
+
   command("PromptSubmit", function()
     core.submit_prompt()
   end, { desc = "Submit chat buffer with parsed messages to model API" })
