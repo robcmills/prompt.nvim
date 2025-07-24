@@ -48,6 +48,15 @@ use {
    export OPENROUTER_API_KEY="your-api-key-here"
    ```
 
+## Dependencies
+
+- `curl` is the only _required_ dependency.
+
+### Optional Dependencies
+
+- [MeanderingProgrammer/render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) this will greatly improve the aesthetics, especially the _code block syntax highlighting_.
+
+
 ## Quick Start
 
 1. Create a new prompt file:
