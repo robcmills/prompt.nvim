@@ -205,6 +205,9 @@ function M.stop_prompt()
   else
     request:kill()
     active_requests[current_bufnr] = nil
+    if parse.is_inside_code_block(current_bufnr) then
+      util.append_to_buffer(current_bufnr, "\n```\n")
+    end
     util.append_to_buffer(current_bufnr, "\nPrompt request cancelled")
     vim.notify("Prompt request cancelled", vim.log.levels.INFO)
   end
