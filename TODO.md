@@ -28,7 +28,9 @@
 - [ ] Add `@mentions`
   + https://github.com/yetone/avante.nvim/tree/main#mentions
 - [ ] Add command to manually trigger summary rename
+- [ ] Add commands to navigate prompts by delineators (:PromptNext, :PromptPrev)
 - [ ] Rename make_openrouter_request to make_chat_completion_request
+- [ ] Rename `get_prompt_summary` to `get_prompt_summary_filename`
 - [ ] Add more providers support
 - [ ] Add sqlite db for storing more data
 - [ ] Add token counts and costs stats

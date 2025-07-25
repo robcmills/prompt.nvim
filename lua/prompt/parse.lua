@@ -3,11 +3,13 @@ local util = require('prompt.util')
 
 local CODE_BLOCK_OPEN_PATTERN = "^```(%S+)$"
 local CODE_BLOCK_CLOSE_PATTERN = "^```$"
-local DELINEATOR_ROLE_PATTERN = "^%[[^%s]+ ([%w%-/:%.]+):]$"
+local DELINEATOR_ROLE_PATTERN = "^%[[^%s]+ ([%w%-/:%.]+):]$" -- parse role from delineator
 local MESSAGE_DELINEATOR = "[%s %s:]" -- [icon role:]
 
 local M = {}
 
+---@param bufnr number Buffer number
+---@param role string Role for the chat delineator (user, assistant, reasoning, etc.)
 function M.add_chat_delineator(bufnr, role)
   if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
     print('add_chat_delineator: buffer not valid')
@@ -29,6 +31,8 @@ function M.add_chat_delineator(bufnr, role)
   vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, vim.split(new_content, "\n"))
 end
 
+---@param bufnr number Buffer number to check
+---@return boolean True if last line is inside a code block
 function M.is_inside_code_block(bufnr)
   if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
     vim.notify("is_inside_code_block: buffer not valid", vim.log.levels.ERROR)
@@ -51,6 +55,8 @@ function M.is_inside_code_block(bufnr)
   return false
 end
 
+---@param bufnr number Buffer number to check
+---@return boolean True if last line is inside a reasoning block
 function M.is_inside_reasoning_block(bufnr)
   if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
     vim.notify("is_inside_reasoning_block: buffer not valid", vim.log.levels.ERROR)
@@ -74,6 +80,8 @@ function M.is_inside_reasoning_block(bufnr)
   return false
 end
 
+---@param buffer_content string Content of the chat buffer
+---@return Message[] Array of parsed messages
 function M.parse_messages_from_chat_buffer(buffer_content)
   local messages = {}
 

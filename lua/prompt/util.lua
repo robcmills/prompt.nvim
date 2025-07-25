@@ -2,6 +2,7 @@ local config = require('prompt.config')
 
 local M = {}
 
+---@return string Expanded history directory path
 function M.get_history_dir()
   local dir = config.history_dir
   if string.sub(dir, 1, 1) == "~" then
@@ -10,6 +11,7 @@ function M.get_history_dir()
   return dir
 end
 
+---Ensures the history directory exists, creating it if necessary
 function M.ensure_history_dir()
   local dir = M.get_history_dir()
   if vim.fn.isdirectory(dir) == 0 then
@@ -17,16 +19,21 @@ function M.ensure_history_dir()
   end
 end
 
+---@return string Filename with timestamp format
 function M.get_timestamp_filename()
   local timestamp = os.date(config.history_date_format)
   return timestamp .. ".md"
 end
 
+---@param bufnr number Buffer number
+---@return string Complete buffer content as string
 function M.get_buffer_content(bufnr)
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   return table.concat(lines, "\n")
 end
 
+---@param bufnr? number Buffer number (defaults to current buffer)
+---@return string Last line content or empty string if buffer is empty
 function M.get_buffer_last_line(bufnr)
   bufnr = bufnr or 0
   if not vim.api.nvim_buf_is_valid(bufnr) then
@@ -38,6 +45,9 @@ function M.get_buffer_last_line(bufnr)
   return last_line or ""
 end
 
+---@param bufnr number Buffer number
+---@param text string Text to append to buffer
+---Appends text to the end of the buffer. Does not create new lines unless text contains newlines.
 function M.append_to_buffer(bufnr, text)
   if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
     print('append_to_buffer: buffer not valid')
@@ -77,6 +87,8 @@ function M.append_to_buffer(bufnr, text)
   end
 end
 
+---@param text string Input text to sanitize
+---@return string Sanitized filename suitable for file system
 function M.sanitize_filename(text)
   -- Remove punctuation and convert to lowercase
   local sanitized = string.lower(text)

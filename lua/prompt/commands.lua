@@ -2,6 +2,7 @@ local core = require('prompt.core')
 
 local M = {}
 
+---Creates all the user commands for the prompt plugin
 function M.create_commands()
   local command = vim.api.nvim_create_user_command
 

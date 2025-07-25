@@ -28,6 +28,8 @@ local OPENROUTER_API_V1_MODELS_URL = 'https://openrouter.ai/api/v1/models'
 ---@field on_success? OnSuccess Optional callback on successful completion. For streaming requests, called with no args. For non-streaming, called with response content string.
 
 ---@param opts OpenRouterOpts
+---Makes a request to the OpenRouter Chat Completion API
+---https://openrouter.ai/docs/api-reference/chat-completion
 function M.make_openrouter_request(opts)
   if not OPENROUTER_API_KEY then
     vim.notify("OPENROUTER_API_KEY environment variable not set", vim.log.levels.ERROR)
@@ -143,6 +145,9 @@ function M.make_openrouter_request(opts)
   }, on_exit)
 end
 
+---@param callback fun(models: table[]?) Callback function with models list or nil on error
+---Curls OpenRouter API to get list of available models
+---https://openrouter.ai/docs/api-reference/list-available-models
 function M.get_models_list(callback)
   local models_path = M.get_models_path()
 
@@ -192,6 +197,7 @@ function M.get_models_list(callback)
   callback(models)
 end
 
+---@return string Expanded path to models file
 function M.get_models_path()
   local path = config.models_path
   if string.sub(path, 1, 1) == "~" then
@@ -200,6 +206,7 @@ function M.get_models_path()
   return path
 end
 
+local SUMMARY_MODEL = 'google/gemini-2.5-flash'
 local SUMMARY_PROMPT = [[
 Summarize the following Prompt in a single, very short title.
 Format it for a filename, in kebab-case, no spaces, and no punctuation.
@@ -210,6 +217,10 @@ Respond with only the title and nothing else.
 </Prompt>
 ]]
 
+---@param filename string Original filename (util.get_timestamp_filename)
+---@param prompt string Prompt content to summarize
+---@param callback? fun(summary: string) Optional callback with generated summary appended to filename
+---Curls OpenRouter API to generate a filename suitable summary of the prompt
 function M.get_prompt_summary(filename, prompt, callback)
   local messages = {
     { role = "user", content = string.format(SUMMARY_PROMPT, prompt) }
@@ -236,12 +247,14 @@ function M.get_prompt_summary(filename, prompt, callback)
 
   M.make_openrouter_request({
     messages = messages,
-    model = 'google/gemini-2.5-flash',
+    model = SUMMARY_MODEL,
     stream = false,
     on_success = on_success
   })
 end
 
+---@param callback? fun(success: boolean) Optional callback with success status
+---Curls OpenRouter API to get list of available models and updates cached models file
 function M.update_models(callback)
   if not OPENROUTER_API_KEY then
     vim.notify("OPENROUTER_API_KEY environment variable not set", vim.log.levels.ERROR)

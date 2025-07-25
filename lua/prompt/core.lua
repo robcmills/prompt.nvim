@@ -5,9 +5,10 @@ local util = require('prompt.util')
 
 local M = {}
 
--- Table to track active requests by buffer number
+---Table to track active requests by buffer number
 local active_requests = {}
 
+---Submits the current buffer content as a prompt to the API
 function M.submit_prompt()
   local current_bufnr = vim.api.nvim_get_current_buf()
   local original_filepath = vim.api.nvim_buf_get_name(current_bufnr)
@@ -95,6 +96,7 @@ function M.submit_prompt()
   end
 end
 
+---Shows a picker to select and load a prompt from history
 function M.load_prompt_history()
   util.ensure_history_dir()
   local history_dir = util.get_history_dir()
@@ -137,14 +139,17 @@ function M.load_prompt_history()
   end)
 end
 
+---Prints the currently selected model
 function M.get_model()
   print(config.model)
 end
 
+---Updates the cached models list from the API
 function M.update_models()
   provider.update_models()
 end
 
+---Shows a picker to select from available models
 function M.select_model()
   local function callback(models)
     vim.schedule(function()
@@ -169,6 +174,7 @@ function M.select_model()
   provider.get_models_list(callback)
 end
 
+---Creates a new prompt file in the current window
 function M.new_prompt()
   util.ensure_history_dir()
   local new_filename = util.get_timestamp_filename()
@@ -190,12 +196,14 @@ function M.new_prompt()
   end)
 end
 
+---Creates a vertical split and opens a new prompt
 function M.split_prompt()
   vim.cmd("vsplit")
   vim.cmd("wincmd L")
   M.new_prompt()
 end
 
+---Stops any active request for the current buffer
 function M.stop_prompt()
   local current_bufnr = vim.api.nvim_get_current_buf()
   local request = active_requests[current_bufnr]

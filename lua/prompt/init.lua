@@ -13,6 +13,7 @@ M.split_prompt = core.split_prompt
 M.submit_prompt = core.submit_prompt
 M.update_models = core.update_models
 
+---@param opts? table Configuration options to merge with defaults
 function M.setup(opts)
   if opts then
     config = vim.tbl_deep_extend("force", config, opts)
