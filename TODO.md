@@ -9,7 +9,6 @@
 - [x] Enable cancellation of streaming request
   + [x] Ensure request is set to nil on request error
   + [x] When stopping request, check if inside code block and if so, add closing ticks
-- [ ] Gracefully handle failed requests to out-of-date models
 - [ ] Add tests (all models)
 - [ ] Add docs (help file)
 
@@ -26,7 +25,7 @@
 - [ ] Add type annotations
 - [ ] Update :PromptModelSelect to update models if cache expired
   + ~/.local/share/nvim/prompt_history/2025-07-19T09:19:23-agent-prompt-models-expiry.md
-- [ ] Add support for adding `@mentions`
+- [ ] Add `@mentions`
   + https://github.com/yetone/avante.nvim/tree/main#mentions
 - [ ] Add command to manually trigger summary rename
 - [ ] Rename make_openrouter_request to make_chat_completion_request
@@ -37,6 +36,7 @@
   instead of a single shared buffer)
 - [ ] Model picker configurable format (select, filter, sort)
 - [ ] Add leaderboard sorting to model picker
+- [ ] Gracefully handle failed requests to out-of-date models
 - [ ] UI
 - [ ] Add "inline" prompts (meta+k) for code edits
 - [ ] Add agent mode?
