@@ -1,3 +1,10 @@
+---@class PromptConfig
+---@field history_date_format string
+---@field history_dir string
+---@field icons table<string, string>
+---@field max_filename_length number
+---@field model string
+---@field models_path string
 local M = {
   history_date_format = "%Y-%m-%dT%H:%M:%S",
   history_dir = "~/.local/share/nvim/prompt_history/",

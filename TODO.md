@@ -18,7 +18,8 @@
 
 - [ ] Refactor default config directory
   ~/.config/nvim/prompt/
-- [ ] Pretty
+- [ ] Aesthetics
+  + [ ] Add animated loading spinner
   + [ ] Add indentation to all message blocks to enable folding
   + [ ] Collapse sequences of empty lines
   + [ ] Add custom markdown formatting (delineators, @mentions, reasoning)
@@ -34,8 +35,8 @@
 - [ ] Add more providers support
 - [ ] Add sqlite db for storing more data
 - [ ] Add token counts and costs stats
-- [ ] Enable multiple prompts simultaneously (just use files in history_dir,
-  instead of a single shared buffer)
+- [ ] Enable multiple prompts simultaneously (just use files in history_dir, instead of a single shared buffer)
+- [ ] Enable sumbitting to multiple models simultaneously?
 - [ ] Model picker configurable format (select, filter, sort)
 - [ ] Add leaderboard sorting to model picker
 - [ ] Gracefully handle failed requests to out-of-date models

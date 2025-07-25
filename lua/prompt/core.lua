@@ -6,6 +6,7 @@ local util = require('prompt.util')
 local M = {}
 
 ---Table to track active requests by buffer number
+---@type table<number, vim.SystemObj|nil>
 local active_requests = {}
 
 ---Submits the current buffer content as a prompt to the API
@@ -211,8 +212,9 @@ function M.stop_prompt()
   if not request then
     vim.notify("No active request found for current buffer", vim.log.levels.WARN)
   else
-    request:kill()
+    request:kill(9)
     active_requests[current_bufnr] = nil
+    -- If we are in a code block, add closing ticks to prevent broken syntax highlighting
     if parse.is_inside_code_block(current_bufnr) then
       util.append_to_buffer(current_bufnr, "\n```\n")
     end
