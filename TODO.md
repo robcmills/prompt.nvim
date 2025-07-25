@@ -10,6 +10,7 @@
   + [x] Ensure request is set to nil on request error
   + [x] When stopping request, check if inside code block and if so, add closing ticks
 - [ ] Add tests (all models)
+- [ ] Add type annotations
 - [ ] Add docs (help file)
 
 
@@ -22,7 +23,6 @@
   + [ ] Collapse sequences of empty lines
   + [ ] Add custom markdown formatting (delineators, @mentions, reasoning)
   + [ ] Add better reasoning formatting (highlight delineator line)
-- [ ] Add type annotations
 - [ ] Update :PromptModelSelect to update models if cache expired
   + ~/.local/share/nvim/prompt_history/2025-07-19T09:19:23-agent-prompt-models-expiry.md
 - [ ] Add `@mentions`

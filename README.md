@@ -93,13 +93,14 @@ Tell me more about its history.
 
 | Command | Description |
 |---------|-------------|
-| `:PromptNew` | Create a new timestamped prompt file |
-| `:PromptSplit` | Open a new prompt in a vertical split |
-| `:PromptSubmit` | Submit the current prompt to the AI model |
 | `:PromptHistory` | Browse and open previous prompt conversations |
 | `:PromptModelGet` | Display the currently selected model |
 | `:PromptModelSelect` | Choose from available AI models |
 | `:PromptModelsUpdate` | Update the list of available models from OpenRouter |
+| `:PromptNew` | Create a new timestamped prompt file |
+| `:PromptSplit` | Open a new prompt in a vertical split |
+| `:PromptStop` | Stops any request streaming into current buffer |
+| `:PromptSubmit` | Submit the current prompt to the AI model |
 
 
 ## Configuration
