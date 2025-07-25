@@ -6,9 +6,9 @@
 - [x] Refactor filename summary to use static model (not current)
 - [x] Add support for reasoning
 - [x] Add reasoning delineators
-- [ ] Enable cancellation of streaming request
+- [x] Enable cancellation of streaming request
   + [x] Ensure request is set to nil on request error
-  + [ ] When stopping request, check if inside code block and if so, add closing ticks
+  + [x] When stopping request, check if inside code block and if so, add closing ticks
 - [ ] Gracefully handle failed requests to out-of-date models
 - [ ] Add tests (all models)
 - [ ] Add docs (help file)
