@@ -18,19 +18,19 @@
 
 - [x] Refactor default config directory
   ~/.local/share/nvim/prompt/
+- [ ] Add initial user message delineator and placeholder text
 - [ ] Aesthetics
   + [x] Add animated loading spinner
   + [ ] Add indentation to all message blocks to enable folding
   + [ ] Collapse sequences of empty lines
   + [ ] Add custom markdown formatting (delineators, @mentions, reasoning)
   + [ ] Add better reasoning formatting (highlight delineator line)
-- [ ] Add initial user message delineator and placeholder text
 - [ ] Update :PromptModelSelect to update models if cache expired
   + ~/.local/share/nvim/prompt_history/2025-07-19T09:19:23-agent-prompt-models-expiry.md
 - [ ] Add `@mentions`
   + https://github.com/yetone/avante.nvim/tree/main#mentions
 - [ ] Add command to manually trigger summary rename
-- [ ] Add commands to navigate prompts by delineators (:PromptNext, :PromptPrev)
+- [ ] Add commands to navigate prompts by delineators (:PromptMessageNext, :PromptMessagePrev)
 - [ ] Rename make_openrouter_request to make_chat_completion_request
 - [ ] Rename `get_prompt_summary` to `get_prompt_summary_filename`
 - [ ] Add more providers support
