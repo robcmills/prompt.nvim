@@ -16,8 +16,8 @@
 
 ## Improvements
 
-- [ ] Refactor default config directory
-  ~/.config/nvim/prompt/
+- [x] Refactor default config directory
+  ~/.local/share/nvim/prompt/
 - [ ] Aesthetics
   + [x] Add animated loading spinner
   + [ ] Add indentation to all message blocks to enable folding

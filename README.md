@@ -108,7 +108,7 @@ Tell me more about its history.
 ```lua
 require('prompt').setup({
   history_date_format = "%Y-%m-%dT%H:%M:%S", -- for timestamped filenames
-  history_dir = "~/.local/share/nvim/prompt_history/",
+  history_dir = "~/.local/share/nvim/prompt/history/",
   icons = {
     assistant = "●",
     reasoning = "∴",
@@ -116,7 +116,9 @@ require('prompt').setup({
   },
   max_filename_length = 75,
   model = "anthropic/claude-sonnet-4",
-  models_path = "~/.local/share/nvim/prompt_models.json",
+  models_path = "~/.local/share/nvim/prompt/models.json",
+  spinner_chars = { "⠋", "⠙", "⠸", "⠴", "⠦", "⠇" },
+  spinner_interval = 150,
 })
 ```
 
