@@ -127,4 +127,34 @@ function M.parse_messages_from_chat_buffer(buffer_content)
   return messages
 end
 
+---@param bufnr number Buffer number to check
+---@return {line: number, col: number}|nil Line and column where spinner should appear, or nil if no delineator found
+function M.getSpinnerLocation(bufnr)
+  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+    return nil
+  end
+
+  local line_count = vim.api.nvim_buf_line_count(bufnr)
+  if line_count == 0 then
+    return nil
+  end
+
+  -- Start from the last line and work backwards to find the last model delineator
+  for i = line_count, 1, -1 do
+    local line = vim.api.nvim_buf_get_lines(bufnr, i - 1, i, false)[1]
+    if not line then return nil end
+    
+    local role = string.match(line, DELINEATOR_ROLE_PATTERN)
+    if role and role ~= "" and role ~= "reasoning" and role ~= "user" and role ~= "tool" then
+      -- Found a model role delineator, return line and column (length of line + 2)
+      return {
+        line = i - 1, -- 0-indexed line number
+        col = string.len(line) + 2
+      }
+    end
+  end
+
+  return nil
+end
+
 return M

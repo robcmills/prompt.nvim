@@ -1,6 +1,7 @@
 local config = require('prompt.config')
 local parse = require('prompt.parse')
 local provider = require('prompt.provider')
+local spinner = require('prompt.spinner')
 local util = require('prompt.util')
 
 local M = {}
@@ -59,6 +60,8 @@ function M.submit_prompt()
 
   parse.add_chat_delineator(current_bufnr, config.model)
 
+  spinner.start_spinner(current_bufnr)
+
   local request = provider.make_openrouter_request({
     messages = messages,
     model = config.model,
@@ -81,6 +84,7 @@ function M.submit_prompt()
     end,
     on_exit = function(obj)
       vim.schedule(function()
+        spinner.stop_spinner(current_bufnr)
         if obj.code ~= 0 then
           util.append_to_buffer(current_bufnr, "\nPrompt request failed.")
         end
@@ -208,6 +212,8 @@ end
 function M.stop_prompt()
   local current_bufnr = vim.api.nvim_get_current_buf()
   local request = active_requests[current_bufnr]
+
+  spinner.stop_spinner(current_bufnr)
 
   if not request then
     vim.notify("No active request found for current buffer", vim.log.levels.WARN)
