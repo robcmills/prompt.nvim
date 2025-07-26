@@ -143,7 +143,7 @@ function M.getSpinnerLocation(bufnr)
   for i = line_count, 1, -1 do
     local line = vim.api.nvim_buf_get_lines(bufnr, i - 1, i, false)[1]
     if not line then return nil end
-    
+
     local role = string.match(line, DELINEATOR_ROLE_PATTERN)
     if role and role ~= "" and role ~= "reasoning" and role ~= "user" and role ~= "tool" then
       -- Found a model role delineator, return line and column (length of line + 2)

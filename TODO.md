@@ -10,7 +10,7 @@
   + [x] Ensure request is set to nil on request error
   + [x] When stopping request, check if inside code block and if so, add closing ticks
 - [ ] Add tests (all models)
-- [ ] Add type annotations
+- [x] Add type annotations
 - [ ] Add docs (help file)
 
 
@@ -19,11 +19,12 @@
 - [ ] Refactor default config directory
   ~/.config/nvim/prompt/
 - [ ] Aesthetics
-  + [ ] Add animated loading spinner
+  + [x] Add animated loading spinner
   + [ ] Add indentation to all message blocks to enable folding
   + [ ] Collapse sequences of empty lines
   + [ ] Add custom markdown formatting (delineators, @mentions, reasoning)
   + [ ] Add better reasoning formatting (highlight delineator line)
+- [ ] Add initial user message delineator and placeholder text
 - [ ] Update :PromptModelSelect to update models if cache expired
   + ~/.local/share/nvim/prompt_history/2025-07-19T09:19:23-agent-prompt-models-expiry.md
 - [ ] Add `@mentions`
