@@ -130,7 +130,7 @@ require('prompt').setup({
 
 ## Development Status
 
-This plugin is under active development. Expect major breaking changes.
+This plugin is under active development.
 See [TODO.md](TODO.md) for planned features and improvements.
 
 ## Contributing
