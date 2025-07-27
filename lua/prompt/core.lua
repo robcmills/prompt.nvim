@@ -13,7 +13,6 @@ local active_requests = {}
 ---Submits the current buffer content as a prompt to the API
 function M.submit_prompt()
   local current_bufnr = vim.api.nvim_get_current_buf()
-  local original_filepath = vim.api.nvim_buf_get_name(current_bufnr)
   local buffer_content = util.get_buffer_content(current_bufnr)
 
   if buffer_content == "" then
@@ -43,18 +42,7 @@ function M.submit_prompt()
     end
 
     if first_user_message then
-      vim.cmd("write")
-      local callback = function(summary_filename)
-        local new_filepath = vim.fs.joinpath(util.get_history_dir(), summary_filename)
-        local success, err = pcall(vim.fn.rename, original_filepath, new_filepath)
-        if not success then
-          vim.notify("Error renaming prompt file: " .. err, vim.log.levels.ERROR)
-          return
-        end
-        vim.api.nvim_buf_set_name(current_bufnr, new_filepath)
-        vim.cmd("write!")
-      end
-      provider.get_prompt_summary(current_filename, first_user_message, callback)
+      M.rename_prompt_summary(current_bufnr, first_user_message)
     end
   end
 
@@ -199,6 +187,38 @@ function M.new_prompt()
     vim.cmd("write")
     vim.cmd("startinsert")
   end)
+end
+
+---Renames the given buffer with appended summary of prompt
+---@param bufnr number Buffer number to rename
+---@param prompt? string Prompt content to summarize. If not provided, will use current buffer content.
+function M.rename_prompt_summary(bufnr, prompt)
+  local original_filename = vim.fn.expand("%:t")
+  local original_filepath = vim.api.nvim_buf_get_name(bufnr)
+
+  if not prompt then prompt = util.get_buffer_content(bufnr) end
+
+  if prompt == "" then
+    vim.notify("Prompt is empty", vim.log.levels.WARN)
+    return
+  end
+
+  vim.cmd("write")
+
+  local callback = function(summary_filename)
+    vim.schedule(function()
+      local new_filepath = vim.fs.joinpath(util.get_history_dir(), summary_filename)
+      local success, err = pcall(vim.fn.rename, original_filepath, new_filepath)
+      if not success then
+        vim.notify("Error renaming prompt file: " .. err, vim.log.levels.ERROR)
+        return
+      end
+      vim.api.nvim_buf_set_name(bufnr, new_filepath)
+      vim.cmd("write!")
+    end)
+  end
+
+  provider.get_prompt_summary_filename(original_filename, prompt, callback)
 end
 
 ---Creates a vertical split and opens a new prompt

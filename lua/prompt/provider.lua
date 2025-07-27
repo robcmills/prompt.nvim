@@ -221,7 +221,7 @@ Respond with only the title and nothing else.
 ---@param prompt string Prompt content to summarize
 ---@param callback? fun(summary: string) Optional callback with generated summary appended to filename
 ---Curls OpenRouter API to generate a filename suitable summary of the prompt
-function M.get_prompt_summary(filename, prompt, callback)
+function M.get_prompt_summary_filename(filename, prompt, callback)
   local messages = {
     { role = "user", content = string.format(SUMMARY_PROMPT, prompt) }
   }

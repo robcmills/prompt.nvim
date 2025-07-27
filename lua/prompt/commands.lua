@@ -26,6 +26,11 @@ function M.create_commands()
     core.new_prompt()
   end, { desc = "Create a new markdown prompt file" })
 
+  command("PromptRenameSummary", function()
+    local bufnr = vim.api.nvim_get_current_buf()
+    core.rename_prompt_summary(bufnr)
+  end, { desc = "Rename current prompt file with appended summary" })
+
   command("PromptSplit", function()
     core.split_prompt()
   end, { desc = "Split the current window vertically and open a new prompt" })
