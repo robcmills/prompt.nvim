@@ -29,8 +29,9 @@
   + ~/.local/share/nvim/prompt_history/2025-07-19T09:19:23-agent-prompt-models-expiry.md
 - [ ] Add `@mentions`
   + https://github.com/yetone/avante.nvim/tree/main#mentions
-- [ ] Add command to manually trigger summary rename
+- [x] Add command to manually trigger summary rename
 - [ ] Add commands to navigate prompts by delineators (:PromptMessageNext, :PromptMessagePrev)
+- [ ] Add command to set config values at runtime (:PromptConfigSet)
 - [ ] Rename make_openrouter_request to make_chat_completion_request
 - [ ] Rename `get_prompt_summary` to `get_prompt_summary_filename`
 - [ ] Add more providers support

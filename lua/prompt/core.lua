@@ -124,11 +124,9 @@ function M.load_prompt_history()
       return item.display
     end,
   }, function(choice)
-    if not choice then
-      return
-    end
-
+    if not choice then return end
     vim.cmd("e " .. choice.filepath)
+    parse.add_highlights(vim.api.nvim_get_current_buf())
   end)
 end
 

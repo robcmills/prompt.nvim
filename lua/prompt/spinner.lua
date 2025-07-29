@@ -4,7 +4,7 @@ local parse = require('prompt.parse')
 local M = {}
 
 ---Table to track active spinners by buffer number
----@type table<number, {timer_id: number, char_index: number, line_num: number, col_num: number, original_line: string}|nil>
+---@type table<number, {timer_id: number, char_index: number, line_num: number, col_num: number, original_line: string, last_content_length: number} | nil>
 M.active_spinners = {}
 
 ---Starts a spinner for the given buffer after the last model delineator
@@ -43,25 +43,32 @@ function M.start_spinner(bufnr)
     end
 
     local current_char = config.spinner_chars[spinner_data.char_index]
+    local new_content = " " .. current_char
 
-    -- Build the new line content with spinner at the specified position
-    local new_line = spinner_data.original_line .. " " .. current_char
+    -- Calculate positions
+    local start_row = spinner_data.line_num
+    local start_col = string.len(spinner_data.original_line)
+    local end_row = spinner_data.line_num
+    local end_col = start_col + (spinner_data.last_content_length or 0) -- Replace previous spinner content
+    vim.api.nvim_buf_set_text(bufnr, start_row, start_col, end_row, end_col, { new_content })
+    vim.api.nvim_buf_add_highlight(bufnr, -1, "PromptDelineatorSpinner", start_row, start_col, start_col + string.len(new_content))
 
-    -- Update the line with the spinner
-    vim.api.nvim_buf_set_lines(bufnr, spinner_data.line_num, spinner_data.line_num + 1, false, {new_line})
+    -- Store the length of content we just added for next iteration
+    spinner_data.last_content_length = string.len(new_content)
 
     -- Move to next character
     spinner_data.char_index = (spinner_data.char_index % #config.spinner_chars) + 1
   end
 
-  local timer_id = vim.fn.timer_start(config.spinner_interval, update_spinner, {['repeat'] = -1})
+  local timer_id = vim.fn.timer_start(config.spinner_interval, update_spinner, {['repeat'] = 25})
 
   M.active_spinners[bufnr] = {
-    timer_id = timer_id,
     char_index = char_index,
-    line_num = line_num,
     col_num = col_num,
-    original_line = original_line
+    last_content_length = 0,
+    line_num = line_num,
+    original_line = original_line,
+    timer_id = timer_id,
   }
 end
 

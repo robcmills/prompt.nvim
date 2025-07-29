@@ -3,8 +3,8 @@ local util = require('prompt.util')
 
 local CODE_BLOCK_OPEN_PATTERN = "^```(%S+)$"
 local CODE_BLOCK_CLOSE_PATTERN = "^```$"
-local DELINEATOR_ROLE_PATTERN = "^%[[^%s]+ ([%w%-/:%.]+):]$" -- parse role from delineator
-local MESSAGE_DELINEATOR = "[%s %s:]" -- [icon role:]
+local DELINEATOR_ROLE_PATTERN = "^█ [^%s]+ ([%w%-/:%.]+): █$" -- parse role from delineator
+local MESSAGE_DELINEATOR = "█ %s %s: █" -- █ icon role: █
 
 local M = {}
 
@@ -29,6 +29,33 @@ function M.add_chat_delineator(bufnr, role)
   local prefix = is_last_line_empty and "" or "\n"
   local new_content = prefix .. delineator .. "\n\n"
   vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, vim.split(new_content, "\n"))
+
+  M.add_highlights(bufnr)
+end
+
+---@param args {bufnr: number, icon: string, linenr: number, role: string}
+function M.add_delineator_highlights(args)
+  local line = vim.api.nvim_buf_get_lines(args.bufnr, args.linenr, args.linenr + 1, false)[1]
+  if line == nil or line == "" then
+    vim.notify("add_delineator_highlights: line is empty", vim.log.levels.ERROR)
+    return
+  end
+  local icon_start, icon_end = string.find(line, args.icon, 1, true)
+  if icon_start == nil or icon_end == nil then
+    vim.notify("add_delineator_highlights: icon not found", vim.log.levels.ERROR)
+    return
+  end
+  local role_start, role_end = string.find(line, args.role, 1, true)
+  if role_start == nil or role_end == nil then
+    vim.notify("add_delineator_highlights: role not found", vim.log.levels.ERROR)
+    return
+  end
+
+  config.setup_highlight_groups()
+
+  vim.api.nvim_buf_add_highlight(args.bufnr, -1, "PromptDelineatorLine", args.linenr, 0, -1)
+  vim.api.nvim_buf_add_highlight(args.bufnr, -1, "PromptDelineatorIcon", args.linenr, icon_start - 1, icon_end)
+  vim.api.nvim_buf_add_highlight(args.bufnr, -1, "PromptDelineatorRole", args.linenr, role_start - 1, role_end)
 end
 
 ---@param bufnr number Buffer number to check
@@ -155,6 +182,38 @@ function M.getSpinnerLocation(bufnr)
   end
 
   return nil
+end
+
+---Add custom prompt highlights to given buffer
+---@param bufnr number Buffer number to add highlights to
+function M.add_highlights(bufnr)
+  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+    return
+  end
+
+  local line_count = vim.api.nvim_buf_line_count(bufnr)
+  if line_count == 0 then
+    return
+  end
+
+  -- Iterate through all lines and add highlights to delineator lines
+  for i = 0, line_count do
+    local line = vim.api.nvim_buf_get_lines(bufnr, i, i + 1, false)[1]
+    if line then
+      local role = string.match(line, DELINEATOR_ROLE_PATTERN)
+      if role then
+        local icon
+        if role == "user" then
+          icon = config.icons.user
+        elseif role == "reasoning" then
+          icon = config.icons.reasoning
+        else
+          icon = config.icons.assistant
+        end
+        M.add_delineator_highlights({ bufnr = bufnr, linenr = i, icon = icon, role = role })
+      end
+    end
+  end
 end
 
 return M
