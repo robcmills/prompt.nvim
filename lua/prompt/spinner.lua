@@ -83,9 +83,13 @@ function M.stop_spinner(bufnr)
   -- Stop the timer
   vim.fn.timer_stop(spinner_data.timer_id)
 
-  -- Restore the original line content
+  -- Remove the spinner content without destroying highlight groups on the rest of the line
   if vim.api.nvim_buf_is_valid(bufnr) then
-    vim.api.nvim_buf_set_lines(bufnr, spinner_data.line_num, spinner_data.line_num + 1, false, {spinner_data.original_line})
+    local start_row = spinner_data.line_num
+    local start_col = string.len(spinner_data.original_line)
+    local end_row = spinner_data.line_num
+    local end_col = start_col + (spinner_data.last_content_length or 0)
+    vim.api.nvim_buf_set_text(bufnr, start_row, start_col, end_row, end_col, {""})
   end
 
   M.active_spinners[bufnr] = nil

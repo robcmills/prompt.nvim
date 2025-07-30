@@ -23,11 +23,15 @@
   + [x] Add animated loading spinner
   + [ ] Add indentation to all message blocks to enable folding
   + [ ] Collapse sequences of empty lines
-  + [ ] Add custom markdown formatting (delineators, @mentions, reasoning)
+  + [ ] Add custom markdown formatting
+    * [ ] delineators (by role)
+    * [ ] message blocks
+    * [ ] @contexts
   + [ ] Add better reasoning formatting (highlight delineator line)
 - [ ] Update :PromptModelSelect to update models if cache expired
-  + ~/.local/share/nvim/prompt_history/2025-07-19T09:19:23-agent-prompt-models-expiry.md
-- [ ] Add `@mentions`
+  + ~/.local/share/nvim/prompt/history/2025-07-19T09:19:23-agent-prompt-models-expiry.md
+- [ ] Add `@contexts`
+  + https://docs.cursor.com/en/context/@-symbols/overview
   + https://github.com/yetone/avante.nvim/tree/main#mentions
 - [x] Add command to manually trigger summary rename
 - [ ] Add commands to navigate prompts by delineators (:PromptMessageNext, :PromptMessagePrev)
