@@ -40,6 +40,7 @@ function M.add_delineator_highlights(args)
     vim.notify("add_delineator_highlights: line is empty", vim.log.levels.ERROR)
     return
   end
+  local line_end = string.len(line)
   local icon_start, icon_end = string.find(line, args.icon, 1, true)
   if icon_start == nil or icon_end == nil then
     vim.notify("add_delineator_highlights: icon not found", vim.log.levels.ERROR)
@@ -53,7 +54,7 @@ function M.add_delineator_highlights(args)
 
   config.setup_highlight_groups()
 
-  vim.api.nvim_buf_add_highlight(args.bufnr, -1, "PromptDelineatorLine", args.linenr, 0, -1)
+  vim.api.nvim_buf_add_highlight(args.bufnr, -1, "PromptDelineatorLine", args.linenr, 0, line_end)
   vim.api.nvim_buf_add_highlight(args.bufnr, -1, "PromptDelineatorIcon", args.linenr, icon_start - 1, icon_end)
   vim.api.nvim_buf_add_highlight(args.bufnr, -1, "PromptDelineatorRole", args.linenr, role_start - 1, role_end)
 end

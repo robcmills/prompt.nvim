@@ -15,9 +15,9 @@
 ---@class PromptConfig
 local M = {
   highlight_groups = {
-    delineator_icon = { fg = "red" },
+    delineator_icon = { fg = "cyan" },
     delineator_line = { link = "DiagnosticVirtualTextInfo" },
-    delineator_role = { fg = "purple" },
+    delineator_role = {},
     delineator_spinner = { link = "ErrorMsg" },
   },
   history_date_format = "%Y-%m-%dT%H:%M:%S",
