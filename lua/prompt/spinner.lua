@@ -60,7 +60,7 @@ function M.start_spinner(bufnr)
     spinner_data.char_index = (spinner_data.char_index % #config.spinner_chars) + 1
   end
 
-  local timer_id = vim.fn.timer_start(config.spinner_interval, update_spinner, {['repeat'] = 25})
+  local timer_id = vim.fn.timer_start(config.spinner_interval, update_spinner, {['repeat'] = config.spinner_timeout})
 
   M.active_spinners[bufnr] = {
     char_index = char_index,

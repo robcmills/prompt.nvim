@@ -54,9 +54,12 @@ function M.add_delineator_highlights(args)
 
   config.setup_highlight_groups()
 
-  vim.api.nvim_buf_add_highlight(args.bufnr, -1, "PromptDelineatorLine", args.linenr, 0, line_end)
-  vim.api.nvim_buf_add_highlight(args.bufnr, -1, "PromptDelineatorIcon", args.linenr, icon_start - 1, icon_end)
-  vim.api.nvim_buf_add_highlight(args.bufnr, -1, "PromptDelineatorRole", args.linenr, role_start - 1, role_end)
+  local role_capitalized = (args.role == 'user' or args.role == 'reasoning')
+    and args.role:gsub("^%l", string.upper)
+    or 'Assistant'
+  vim.api.nvim_buf_add_highlight(args.bufnr, -1, "Prompt" .. role_capitalized .. "DelineatorLine", args.linenr, 0, line_end)
+  vim.api.nvim_buf_add_highlight(args.bufnr, -1, "Prompt" .. role_capitalized .. "DelineatorIcon", args.linenr, icon_start - 1, icon_end)
+  vim.api.nvim_buf_add_highlight(args.bufnr, -1, "Prompt" .. role_capitalized .. "DelineatorRole", args.linenr, role_start - 1, role_end)
 end
 
 ---@param bufnr number Buffer number to check
