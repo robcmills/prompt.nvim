@@ -26,7 +26,7 @@ local M = {
       delineator_role = {},
     },
     reasoning = {
-      delineator_icon = { fg = "green" },
+      delineator_icon = {},
       delineator_line = { link = "DiagnosticVirtualTextHint" },
       delineator_role = {},
     },
