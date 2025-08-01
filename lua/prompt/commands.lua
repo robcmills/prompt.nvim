@@ -1,10 +1,15 @@
 local core = require('prompt.core')
+local parse = require('prompt.parse')
 
 local M = {}
 
 ---Creates all the user commands for the prompt plugin
 function M.create_commands()
   local command = vim.api.nvim_create_user_command
+
+  command("PromptHighlight", function()
+    parse.add_highlights(vim.api.nvim_get_current_buf())
+  end, { desc = "Add Prompt highlights to current buffer" })
 
   command("PromptHistory", function()
     core.load_prompt_history()
