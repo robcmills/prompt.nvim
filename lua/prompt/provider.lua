@@ -13,10 +13,33 @@ local OPENROUTER_API_V1_MODELS_URL = 'https://openrouter.ai/api/v1/models'
 ---@field role "user"|"assistant"|"system"|"developer"|"tool" The role of the message sender
 ---@field content string The content of the message
 
+---@class UsageRequest
+---@field include boolean Whether to include usage info in response
+
+---@class UsageResponse
+---@field completion_tokens integer
+---@field completion_tokens_details CompletionTokensDetails
+---@field cost number
+---@field cost_details CostDetails
+---@field is_byok boolean
+---@field prompt_tokens integer
+---@field prompt_tokens_details PromptTokensDetails
+---@field total_tokens integer
+
+---@class CompletionTokensDetails
+---@field reasoning_tokens integer
+
+---@class CostDetails
+---@field upstream_inference_cost nil
+
+---@class PromptTokensDetails
+---@field cached_tokens integer
+
 ---@alias OnExit fun(obj: table): nil Callback on exit. obj is vim.SystemCompleted (:h vim.system())
 ---@alias OnDeltaContent fun(content: string): nil Callback for streaming content deltas
 ---@alias OnDeltaReasoning fun(reasoning: string): nil Callback for streaming reasoning deltas
----@alias OnSuccess fun(content: string?): nil Callback on successful completion
+---@alias OnSuccess fun(parsed_response: table): nil Callback on successful completion
+---@alias OnUsage fun(usage: UsageResponse): nil Callback for when response includes usage object
 
 ---@class OpenRouterOpts Options for the OpenRouter API request
 ---@field model string The model to use for the request
@@ -25,12 +48,14 @@ local OPENROUTER_API_V1_MODELS_URL = 'https://openrouter.ai/api/v1/models'
 ---@field on_delta_content? OnDeltaContent Optional callback for streaming content deltas
 ---@field on_delta_reasoning? OnDeltaReasoning Optional callback for streaming reasoning deltas
 ---@field on_exit? OnExit Optional callback on exit
----@field on_success? OnSuccess Optional callback on successful completion. For streaming requests, called with no args. For non-streaming, called with response content string.
+---@field on_success? OnSuccess Optional callback on successful completion.
+---@field on_usage? OnUsage Optional callback for when response includes usage object
+---@field usage? UsageRequest Optional usage object for requesting response include UsageResponse
 
 ---@param opts OpenRouterOpts
 ---Makes a request to the OpenRouter Chat Completion API
 ---https://openrouter.ai/docs/api-reference/chat-completion
-function M.make_openrouter_request(opts)
+function M.make_chat_completion_request(opts)
   if not OPENROUTER_API_KEY then
     vim.notify("OPENROUTER_API_KEY environment variable not set", vim.log.levels.ERROR)
     return
@@ -40,6 +65,7 @@ function M.make_openrouter_request(opts)
     model = opts.model,
     messages = opts.messages,
     stream = opts.stream,
+    usage = opts.usage,
   })
 
   local headers = {
@@ -97,6 +123,9 @@ function M.make_openrouter_request(opts)
               opts.on_delta_reasoning(delta.reasoning)
             end
           end
+          if parsed.usage and opts.on_usage then
+            opts.on_usage(parsed.usage)
+          end
         elseif string.sub(line, 1, 1) == ":" then
           -- Ignore SSE comments
         end
@@ -118,22 +147,18 @@ function M.make_openrouter_request(opts)
         return
       end
 
-      if opts.on_success then
-        if opts.stream then
-          opts.on_success()
-        else
-          -- For non-streaming requests, parse the JSON response and extract content
-          local success, parsed = pcall(vim.json.decode, buffer)
-          if success and parsed.choices and parsed.choices[1] and parsed.choices[1].message and parsed.choices[1].message.content then
-            opts.on_success(parsed.choices[1].message.content)
-          else
-            vim.notify(
-              "Failed to parse OpenRouter API response: " .. buffer,
-              vim.log.levels.ERROR
-            )
-          end
-        end
+      if not opts.on_success then return end
+
+      local success, parsed = pcall(vim.json.decode, buffer)
+      if not success then
+        vim.notify(
+          "Failed to parse OpenRouter API response: " .. buffer,
+          vim.log.levels.ERROR
+        )
+        return
       end
+
+      opts.on_success(parsed)
     end)
   end
 
@@ -226,12 +251,18 @@ function M.get_prompt_summary_filename(filename, prompt, callback)
     { role = "user", content = string.format(SUMMARY_PROMPT, prompt) }
   }
 
-  local function on_success(summary)
-    if not summary then
-      vim.notify("Failed to generate prompt summary", vim.log.levels.ERROR)
+  local function on_success(response)
+    if not response then
+      vim.notify("Empty response passed to on_success", vim.log.levels.ERROR)
       return
     end
 
+    if not response.choices or not response.choices[1] or not response.choices[1].message or not response.choices[1].message.content then
+      vim.notify("Failed to extract summary from response", vim.log.levels.ERROR)
+      return
+    end
+
+    local summary = response.choices[1].message.content
     local sanitized_summary = util.sanitize_filename(summary)
 
     if sanitized_summary == "" then
@@ -245,7 +276,7 @@ function M.get_prompt_summary_filename(filename, prompt, callback)
     if callback then callback(new_filename) end
   end
 
-  M.make_openrouter_request({
+  M.make_chat_completion_request({
     messages = messages,
     model = SUMMARY_MODEL,
     stream = false,

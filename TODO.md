@@ -17,7 +17,7 @@
 ## Improvements
 
 - [ ] Add sqlite db for storing more data
-- [ ] Add token counts and costs stats
+- [x] Add token counts and costs stats
 
 - [ ] Add `@contexts`
   + https://docs.cursor.com/en/context/@-symbols/overview
@@ -39,7 +39,7 @@
 - [x] Add command to manually trigger summary rename
 - [ ] Add commands to navigate prompts by delineators (:PromptMessageNext, :PromptMessagePrev)
 - [ ] Add command to set config values at runtime (:PromptConfigSet)
-- [ ] Rename make_openrouter_request to make_chat_completion_request
+- [x] Rename make_openrouter_request to make_chat_completion_request
 - [ ] Rename `get_prompt_summary` to `get_prompt_summary_filename`
 - [ ] Add more providers support
 - [ ] Enable multiple prompts simultaneously (just use files in history_dir, instead of a single shared buffer)

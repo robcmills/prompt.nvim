@@ -1,5 +1,5 @@
 ---@alias HighlightGroup "delineator_icon"|"delineator_line"|"delineator_role"|"delineator_spinner"
----@alias Role "assistant"|"reasoning"|"user"
+---@alias Role "assistant"|"reasoning"|"usage"|"user"
 
 ---@class PromptConfig
 ---@field highlight_groups table<HighlightGroup, vim.api.keyset.highlight>
@@ -10,6 +10,7 @@
 ---@field max_filename_length number
 ---@field model string
 ---@field models_path string
+---@field render_usage? function(usage: UsageResponse): string If omitted, will not render usage stats
 ---@field spinner_chars string[]
 ---@field spinner_interval number -- milliseconds
 ---@field spinner_timeout number -- number of intervals, so duration = interval * timeout ms
@@ -30,6 +31,11 @@ local M = {
       delineator_line = { link = "DiagnosticVirtualTextHint" },
       delineator_role = {},
     },
+    usage = {
+      delineator_icon = {},
+      delineator_line = { link = "DiffAdd" },
+      delineator_role = {},
+    },
     user = {
       delineator_icon = { fg = "orange" },
       delineator_line = { link = "DiagnosticVirtualTextWarn" },
@@ -41,11 +47,21 @@ local M = {
   icons = {
     assistant = "●",
     reasoning = "∴",
+    usage = "$",
     user = "○",
   },
   max_filename_length = 75,
   model = "anthropic/claude-sonnet-4",
   models_path = "~/.local/share/nvim/prompt/models.json",
+  render_usage = function(usage)
+    return string.format(
+      "Tokens: %d prompt + %d completion = %d total | Cost: $%.4f",
+      usage.prompt_tokens,
+      usage.completion_tokens,
+      usage.total_tokens,
+      usage.cost
+    )
+  end,
   spinner_chars = { "⠋", "⠙", "⠸", "⠴", "⠦", "⠇" },
   spinner_interval = 150,
   spinner_timeout = 1000,

@@ -27,6 +27,11 @@ function M.submit_prompt()
     return
   end
 
+  -- filter out usage messages
+  messages = vim.tbl_filter(function(message)
+    return message.role ~= "usage"
+  end, messages)
+
   -- determine if the current prompt buffer has a summary already
   -- or is only a datetime filename
   local current_filename = vim.fn.expand("%:t")
@@ -50,10 +55,11 @@ function M.submit_prompt()
 
   spinner.start_spinner(current_bufnr)
 
-  local request = provider.make_openrouter_request({
+  local request = provider.make_chat_completion_request({
     messages = messages,
     model = config.model,
     stream = true,
+    usage = { include = true },
     on_delta_content = function(content)
       vim.schedule(function()
         if parse.is_inside_reasoning_block(current_bufnr) then
@@ -79,6 +85,15 @@ function M.submit_prompt()
         active_requests[current_bufnr] = nil
         parse.add_chat_delineator(current_bufnr, 'user')
         vim.cmd("write")
+      end)
+    end,
+    on_usage = function(usage)
+      vim.schedule(function()
+        if config.render_usage then
+          local usage_summary = config.render_usage(usage)
+          parse.add_chat_delineator(current_bufnr, 'usage')
+          util.append_to_buffer(current_bufnr, usage_summary)
+        end
       end)
     end,
   })

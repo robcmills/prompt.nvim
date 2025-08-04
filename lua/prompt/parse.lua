@@ -17,7 +17,9 @@ function M.add_chat_delineator(bufnr, role)
   end
 
   local icon
-  if role == "user" then
+  if role == "usage" then
+    icon = config.icons.usage
+  elseif role == "user" then
     icon = config.icons.user
   elseif role == "reasoning" then
     icon = config.icons.reasoning
@@ -54,7 +56,7 @@ function M.add_delineator_highlights(args)
 
   config.setup_highlight_groups()
 
-  local role_capitalized = (args.role == 'user' or args.role == 'reasoning')
+  local role_capitalized = (args.role == 'usage' or args.role == 'user' or args.role == 'reasoning')
     and args.role:gsub("^%l", string.upper)
     or 'Assistant'
   vim.api.nvim_buf_add_highlight(args.bufnr, -1, "Prompt" .. role_capitalized .. "DelineatorLine", args.linenr, 0, line_end)
@@ -135,7 +137,7 @@ function M.parse_messages_from_chat_buffer(buffer_content)
       end
 
       -- Start new message
-      if not vim.tbl_contains({"user", "assistant", "system", "developer", "tool"}, role) then
+      if not vim.tbl_contains({"usage", "user", "assistant", "system", "developer", "tool"}, role) then
         role = "assistant"
       end
 
@@ -207,7 +209,9 @@ function M.add_highlights(bufnr)
       local role = string.match(line, DELINEATOR_ROLE_PATTERN)
       if role then
         local icon
-        if role == "user" then
+        if role == "usage" then
+          icon = config.icons.usage
+        elseif role == "user" then
           icon = config.icons.user
         elseif role == "reasoning" then
           icon = config.icons.reasoning
