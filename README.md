@@ -1,6 +1,6 @@
 <img alt="prompt.nvim logo.png" src="assets/logo.png" />
 
-Prompt language models directly from markdown files.
+Prompt any language model directly from markdown files.
 
 ![promt.nvim demo.gif](assets/demo.gif)
 
@@ -78,14 +78,29 @@ use {
 The plugin uses a simple delineator format to separate messages:
 
 ```markdown
-● user:
-What is the capital of France?
+What is your favorite emoji? Respond with only the emoji character.
 
-● anthropic/claude-sonnet-4:
-The capital of France is Paris.
+█ ● openrouter/horizon-beta: █
 
-● user:
-Tell me more about its history.
+🙂
+
+█ $ usage: █
+
+Tokens: 19 prompt + 10 completion = 29 total | Cost: $0.0000
+
+█ ○ user: █
+
+What emoji best represents you?
+
+█ ● openrouter/horizon-beta: █
+
+🤝
+
+█ $ usage: █
+
+Tokens: 36 prompt + 11 completion = 47 total | Cost: $0.0000
+
+█ ○ user: █
 ```
 
 ## Commands
@@ -107,18 +122,54 @@ Tell me more about its history.
 
 ```lua
 require('prompt').setup({
-  history_date_format = "%Y-%m-%dT%H:%M:%S", -- for timestamped filenames
+  highlight_groups = {
+    delineator_spinner = { link = "ErrorMsg" },
+  },
+  highlight_groups_by_role = {
+    assistant = {
+      delineator_icon = { fg = "cyan" },
+      delineator_line = { link = "DiagnosticVirtualTextInfo" },
+      delineator_role = {},
+    },
+    reasoning = {
+      delineator_icon = {},
+      delineator_line = { link = "DiagnosticVirtualTextHint" },
+      delineator_role = {},
+    },
+    usage = {
+      delineator_icon = {},
+      delineator_line = { link = "DiffAdd" },
+      delineator_role = {},
+    },
+    user = {
+      delineator_icon = { fg = "orange" },
+      delineator_line = { link = "DiagnosticVirtualTextWarn" },
+      delineator_role = {},
+    },
+  },
+  history_date_format = "%Y-%m-%dT%H:%M:%S",
   history_dir = "~/.local/share/nvim/prompt/history/",
   icons = {
     assistant = "●",
     reasoning = "∴",
+    usage = "$",
     user = "○",
   },
   max_filename_length = 75,
   model = "anthropic/claude-sonnet-4",
   models_path = "~/.local/share/nvim/prompt/models.json",
+  render_usage = function(usage)
+    return string.format(
+      "Tokens: %d prompt + %d completion = %d total | Cost: $%.4f",
+      usage.prompt_tokens,
+      usage.completion_tokens,
+      usage.total_tokens,
+      usage.cost
+    )
+  end,
   spinner_chars = { "⠋", "⠙", "⠸", "⠴", "⠦", "⠇" },
   spinner_interval = 150,
+  spinner_timeout = 1000,
 })
 ```
 
