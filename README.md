@@ -179,6 +179,14 @@ require('prompt').setup({
 - Use `:PromptHistory` to browse and reopen previous conversations
 - Files are automatically renamed with AI-generated summaries
 
+### Use Telescope to search history
+
+If you have [Telescope](https://github.com/nvim-telescope/telescope.nvim) installed, you can use it to search your history with previews:
+
+```lua
+:lua require('telescope.builtin').find_files({ cwd = '~/.local/share/nvim/prompt/history', find_command = { "bash", "-c", "ls -1 *.md | sort -r" } })
+```
+
 ## Development Status
 
 This plugin is under active development.

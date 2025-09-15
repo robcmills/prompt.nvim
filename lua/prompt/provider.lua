@@ -42,6 +42,7 @@ local OPENROUTER_API_V1_MODELS_URL = 'https://openrouter.ai/api/v1/models'
 ---@alias OnUsage fun(usage: UsageResponse): nil Callback for when response includes usage object
 
 ---@class OpenRouterOpts Options for the OpenRouter API request
+---@field max_tokens? integer Maximum number of tokens to generate
 ---@field model string The model to use for the request
 ---@field messages Message[] Array of message objects for the conversation
 ---@field stream boolean Whether to use streaming response
@@ -62,6 +63,7 @@ function M.make_chat_completion_request(opts)
   end
 
   local request_body = vim.json.encode({
+    max_tokens = opts.max_tokens,
     model = opts.model,
     messages = opts.messages,
     stream = opts.stream,

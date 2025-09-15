@@ -8,6 +8,7 @@
 ---@field history_dir string
 ---@field icons table<Role, string>
 ---@field max_filename_length number
+---@field max_tokens number
 ---@field model string
 ---@field models_path string
 ---@field render_usage? function(usage: UsageResponse): string If omitted, will not render usage stats
@@ -51,7 +52,8 @@ local M = {
     user = "○",
   },
   max_filename_length = 75,
-  model = "anthropic/claude-sonnet-4",
+  max_tokens = 16384,
+  model = "openai/gpt-5",
   models_path = "~/.local/share/nvim/prompt/models.json",
   render_usage = function(usage)
     return string.format(

@@ -56,6 +56,7 @@ function M.submit_prompt()
   spinner.start_spinner(current_bufnr)
 
   local request = provider.make_chat_completion_request({
+    max_tokens = config.max_tokens,
     messages = messages,
     model = config.model,
     stream = true,
