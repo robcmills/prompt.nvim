@@ -185,6 +185,7 @@ If you have [Telescope](https://github.com/nvim-telescope/telescope.nvim) instal
 
 ```lua
 :lua require('telescope.builtin').find_files({ cwd = '~/.local/share/nvim/prompt/history', find_command = { "bash", "-c", "ls -1 *.md | sort -r" } })
+:lua require('telescope.builtin').live_grep({ cwd = '~/.local/share/nvim/prompt/history' })
 ```
 
 ## Development Status
