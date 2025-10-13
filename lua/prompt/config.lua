@@ -52,7 +52,7 @@ local M = {
     user = "○",
   },
   max_filename_length = 75,
-  max_tokens = 16384,
+  max_tokens = 32000,
   model = "openai/gpt-5",
   models_path = "~/.local/share/nvim/prompt/models.json",
   render_usage = function(usage)
