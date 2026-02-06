@@ -53,7 +53,7 @@ local M = {
   },
   max_filename_length = 75,
   max_tokens = 32000,
-  model = "anthropic/claude-opus-4.5",
+  model = "anthropic/claude-opus-4.6",
   models_path = "~/.local/share/nvim/prompt/models.json",
   render_usage = function(usage)
     return string.format(
