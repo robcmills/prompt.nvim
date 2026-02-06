@@ -52,6 +52,17 @@ local M = {
     user = "○",
   },
   max_filename_length = 75,
+  commit_message_model = "google/gemini-2.5-flash",
+  commit_message_system_prompt = [[
+You are a commit message generator. Given a git diff, write a clear and concise commit message.
+
+Follow these rules:
+- Write a short subject line (50 chars or less) summarizing the change
+- If more detail is needed, add a blank line followed by a body with bullet points
+- Use imperative mood in the subject line (e.g. "Add feature" not "Added feature")
+- Do not wrap the message in markdown code fences or quotes
+- Respond with only the commit message text and nothing else
+]],
   max_tokens = 32000,
   model = "anthropic/claude-opus-4.6",
   models_path = "~/.local/share/nvim/prompt/models.json",

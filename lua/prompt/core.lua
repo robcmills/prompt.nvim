@@ -242,6 +242,72 @@ function M.split_prompt()
   M.new_prompt()
 end
 
+---Generates a commit message from the current git diff and inserts it at cursor
+function M.generate_commit_message()
+  local current_bufnr = vim.api.nvim_get_current_buf()
+  local cursor_pos = vim.api.nvim_win_get_cursor(0)
+
+  local function request_commit_message(diff)
+    vim.notify("Generating commit message...", vim.log.levels.INFO)
+
+    local messages = {
+      { role = "system", content = config.commit_message_system_prompt },
+      { role = "user", content = diff },
+    }
+
+    provider.make_chat_completion_request({
+      messages = messages,
+      model = config.commit_message_model,
+      stream = false,
+      on_success = function(response)
+        if not response.choices or not response.choices[1]
+          or not response.choices[1].message or not response.choices[1].message.content then
+          vim.notify("Failed to extract commit message from response", vim.log.levels.ERROR)
+          return
+        end
+
+        local commit_message = vim.trim(response.choices[1].message.content)
+        local lines = vim.split(commit_message, "\n")
+        local row = cursor_pos[1] - 1 -- 0-indexed
+        vim.api.nvim_buf_set_lines(current_bufnr, row, row, false, lines)
+      end,
+    })
+  end
+
+  vim.system({ "git", "diff" }, { text = true }, function(obj)
+    vim.schedule(function()
+      if obj.code ~= 0 then
+        vim.notify("git diff failed: " .. (obj.stderr or ""), vim.log.levels.ERROR)
+        return
+      end
+
+      local diff = vim.trim(obj.stdout or "")
+      if diff ~= "" then
+        request_commit_message(diff)
+        return
+      end
+
+      -- No unstaged changes, try staged changes
+      vim.system({ "git", "diff", "--cached" }, { text = true }, function(staged_obj)
+        vim.schedule(function()
+          if staged_obj.code ~= 0 then
+            vim.notify("git diff --cached failed: " .. (staged_obj.stderr or ""), vim.log.levels.ERROR)
+            return
+          end
+
+          local staged_diff = vim.trim(staged_obj.stdout or "")
+          if staged_diff == "" then
+            vim.notify("No unstaged or staged changes found.", vim.log.levels.WARN)
+            return
+          end
+
+          request_commit_message(staged_diff)
+        end)
+      end)
+    end)
+  end)
+end
+
 ---Stops any active request for the current buffer
 function M.stop_prompt()
   local current_bufnr = vim.api.nvim_get_current_buf()

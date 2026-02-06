@@ -7,6 +7,10 @@ local M = {}
 function M.create_commands()
   local command = vim.api.nvim_create_user_command
 
+  command("PromptCommitMessage", function()
+    core.generate_commit_message()
+  end, { desc = "Generate a commit message from git diff and insert at cursor" })
+
   command("PromptHighlight", function()
     parse.add_highlights(vim.api.nvim_get_current_buf())
   end, { desc = "Add Prompt highlights to current buffer" })

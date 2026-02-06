@@ -5,6 +5,7 @@ local core = require('prompt.core')
 local M = {}
 
 M.create_commands = commands.create_commands
+M.generate_commit_message = core.generate_commit_message
 M.get_model = core.get_model
 M.load_prompt_history = core.load_prompt_history
 M.new_prompt = core.new_prompt
