@@ -108,6 +108,7 @@ Tokens: 36 prompt + 11 completion = 47 total | Cost: $0.0000
 
 | Command | Description |
 |---------|-------------|
+| `:PromptCommitMessage` | Generate a commit message from git diff and insert at cursor |
 | `:PromptHistory` | Browse and open previous prompt conversations |
 | `:PromptModelGet` | Display the currently selected model |
 | `:PromptModelSelect` | Choose from available AI models |
@@ -155,6 +156,8 @@ require('prompt').setup({
     usage = "$",
     user = "○",
   },
+  commit_message_model = "google/gemini-2.5-flash",
+  commit_message_system_prompt = "...", -- customize the system prompt for commit messages
   max_filename_length = 75,
   model = "anthropic/claude-sonnet-4",
   models_path = "~/.local/share/nvim/prompt/models.json",
