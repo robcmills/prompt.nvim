@@ -308,6 +308,22 @@ function M.generate_commit_message()
   end)
 end
 
+---Opens a terminal buffer that pipes the current file into Claude Code
+function M.submit_claude_code()
+  local filepath = vim.api.nvim_buf_get_name(0)
+  if filepath == "" then
+    vim.notify("Buffer has no file path", vim.log.levels.WARN)
+    return
+  end
+
+  local filename = vim.fn.fnamemodify(filepath, ":t")
+  local term_name = "cc-" .. filename
+
+  vim.cmd("terminal cat " .. vim.fn.shellescape(filepath) .. " | claude")
+  local term_bufnr = vim.api.nvim_get_current_buf()
+  vim.api.nvim_buf_set_name(term_bufnr, term_name)
+end
+
 ---Stops any active request for the current buffer
 function M.stop_prompt()
   local current_bufnr = vim.api.nvim_get_current_buf()

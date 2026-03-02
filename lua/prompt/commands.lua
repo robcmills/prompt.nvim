@@ -51,6 +51,10 @@ function M.create_commands()
   command("PromptSubmit", function()
     core.submit_prompt()
   end, { desc = "Submit chat buffer with parsed messages to model API" })
+
+  command("PromptSubmitClaudeCode", function()
+    core.submit_claude_code()
+  end, { desc = "Pipe current buffer into Claude Code in a new terminal" })
 end
 
 return M
