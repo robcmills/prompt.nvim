@@ -109,14 +109,17 @@ Tokens: 36 prompt + 11 completion = 47 total | Cost: $0.0000
 | Command | Description |
 |---------|-------------|
 | `:PromptCommitMessage` | Generate a commit message from git diff and insert at cursor |
+| `:PromptHighlight` | Add Prompt highlights to current buffer |
 | `:PromptHistory` | Browse and open previous prompt conversations |
 | `:PromptModelGet` | Display the currently selected model |
 | `:PromptModelSelect` | Choose from available AI models |
 | `:PromptModelsUpdate` | Update the list of available models from OpenRouter |
 | `:PromptNew` | Create a new timestamped prompt file |
+| `:PromptRenameSummary` | Rename current prompt file with an AI-generated summary |
 | `:PromptSplit` | Open a new prompt in a vertical split |
 | `:PromptStop` | Stops any request streaming into current buffer |
 | `:PromptSubmit` | Submit the current prompt to the AI model |
+| `:PromptSubmitClaudeCode` | Pipe current buffer into Claude Code in a new terminal |
 
 
 ## Configuration
