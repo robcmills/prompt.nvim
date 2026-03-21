@@ -322,6 +322,7 @@ function M.submit_claude_code()
   vim.cmd("terminal cat " .. vim.fn.shellescape(filepath) .. " | claude")
   local term_bufnr = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_set_name(term_bufnr, term_name)
+  vim.cmd("startinsert")
 end
 
 ---Stops any active request for the current buffer
