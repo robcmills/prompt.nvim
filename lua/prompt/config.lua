@@ -12,6 +12,8 @@
 ---@field model string
 ---@field models_path string
 ---@field render_usage? function(usage: UsageResponse): string If omitted, will not render usage stats
+---@field summary_model string
+---@field summary_prompt string
 ---@field spinner_chars string[]
 ---@field spinner_interval number -- milliseconds
 ---@field spinner_timeout number -- number of intervals, so duration = interval * timeout ms
@@ -52,7 +54,7 @@ local M = {
     user = "○",
   },
   max_filename_length = 75,
-  commit_message_model = "google/gemini-2.5-flash",
+  commit_message_model = "anthropic/claude-sonnet-4.6",
   commit_message_system_prompt = [[
 You are a commit message generator. Given a git diff, write a clear and concise commit message.
 
@@ -66,6 +68,16 @@ Follow these rules:
   max_tokens = 32000,
   model = "anthropic/claude-opus-4.6",
   models_path = "~/.local/share/nvim/prompt/models.json",
+  summary_model = "anthropic/claude-sonnet-4.6",
+  summary_prompt = [[
+Summarize the following Prompt in a single, very short title.
+Format it for a filename, in kebab-case, no spaces, and no punctuation.
+Respond with only the title and nothing else.
+
+<Prompt>
+%s
+</Prompt>
+]],
   render_usage = function(usage)
     return string.format(
       "Tokens: %d prompt + %d completion = %d total | Cost: $%.4f",

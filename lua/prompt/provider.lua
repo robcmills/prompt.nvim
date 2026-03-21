@@ -233,24 +233,13 @@ function M.get_models_path()
   return path
 end
 
-local SUMMARY_MODEL = 'google/gemini-2.5-flash'
-local SUMMARY_PROMPT = [[
-Summarize the following Prompt in a single, very short title.
-Format it for a filename, in kebab-case, no spaces, and no punctuation.
-Respond with only the title and nothing else.
-
-<Prompt>
-%s
-</Prompt>
-]]
-
 ---@param filename string Original filename (util.get_timestamp_filename)
 ---@param prompt string Prompt content to summarize
 ---@param callback? fun(summary: string) Optional callback with generated summary appended to filename
 ---Curls OpenRouter API to generate a filename suitable summary of the prompt
 function M.get_prompt_summary_filename(filename, prompt, callback)
   local messages = {
-    { role = "user", content = string.format(SUMMARY_PROMPT, prompt) }
+    { role = "user", content = string.format(config.summary_prompt, prompt) }
   }
 
   local function on_success(response)
@@ -280,7 +269,7 @@ function M.get_prompt_summary_filename(filename, prompt, callback)
 
   M.make_chat_completion_request({
     messages = messages,
-    model = SUMMARY_MODEL,
+    model = config.summary_model,
     stream = false,
     on_success = on_success
   })
