@@ -206,7 +206,8 @@ end
 ---Renames the given buffer with appended summary of prompt
 ---@param bufnr number Buffer number to rename
 ---@param prompt? string Prompt content to summarize. If not provided, will use current buffer content.
-function M.rename_prompt_summary(bufnr, prompt)
+---@param on_complete? function Callback invoked after the rename is complete.
+function M.rename_prompt_summary(bufnr, prompt, on_complete)
   local original_filename = vim.fn.expand("%:t")
   local original_filepath = vim.api.nvim_buf_get_name(bufnr)
 
@@ -229,6 +230,7 @@ function M.rename_prompt_summary(bufnr, prompt)
       end
       vim.api.nvim_buf_set_name(bufnr, new_filepath)
       vim.cmd("write!")
+      if on_complete then on_complete() end
     end)
   end
 
